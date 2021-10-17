@@ -1,17 +1,21 @@
 package cs4224.transactions;
 
 
-import cs4224.ParallelExecutor;
+import cs4224.dao.CustomerDao;
+import cs4224.dao.DistrictDao;
+import cs4224.dao.WarehouseDao;
 
-import javax.sql.DataSource;
-import java.math.BigDecimal;
-import java.util.List;
 
 public class PaymentTransaction extends BaseTransaction {
 
+    private final WarehouseDao warehouseDao;
+    private final DistrictDao districtDao;
+    private final CustomerDao customerDao;
 
-    public PaymentTransaction(DataSource ds) {
-        super(ds);
+    public PaymentTransaction(WarehouseDao warehouseDao, DistrictDao districtDao, CustomerDao customerDao) {
+        this.warehouseDao = warehouseDao;
+        this.districtDao = districtDao;
+        this.customerDao = customerDao;
     }
 
     @Override
@@ -20,5 +24,7 @@ public class PaymentTransaction extends BaseTransaction {
         final int customerDistrictId = Integer.parseInt(parameters[2]);
         final int customerId = Integer.parseInt(parameters[3]);
         final double paymentAmount = Double.parseDouble(parameters[4]);
+
+        System.out.println(customerDao.getCustomerById(customerWarehouseId, customerDistrictId, customerId).toName());
     }
 }

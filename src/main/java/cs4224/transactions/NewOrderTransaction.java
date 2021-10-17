@@ -9,8 +9,7 @@ public class NewOrderTransaction extends BaseTransaction {
     private int districtId;
     private int noOfItems;
 
-    public NewOrderTransaction(DataSource ds) {
-        super(ds);
+    public NewOrderTransaction() {
     }
 
     @Override

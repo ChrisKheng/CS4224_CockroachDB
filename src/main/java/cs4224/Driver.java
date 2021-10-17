@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import cs4224.transactions.*;
 import cs4224.utils.Statistics;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 public class Driver {
     public static long numQueries = 0;
 
-    private final DataSource dataSource;
     private final NewOrderTransaction newOrderTransaction;
     private final PaymentTransaction paymentTransaction;
     private final DeliveryTransaction deliveryTransaction;
@@ -26,11 +24,10 @@ public class Driver {
 
 
     @Inject
-    public Driver(DataSource dataSource, NewOrderTransaction newOrderTransaction, PaymentTransaction paymentTransaction,
+    public Driver(NewOrderTransaction newOrderTransaction, PaymentTransaction paymentTransaction,
                   DeliveryTransaction deliveryTransaction, OrderStatusTransaction orderStatusTransaction,
                   StockLevelTransaction stockLevelTransaction, PopularItemTransaction popularItemTransaction,
                   TopBalanceTransaction topBalanceTransaction, RelatedCustomerTransaction relatedCustomerTransaction) {
-        this.dataSource = dataSource;
         this.newOrderTransaction = newOrderTransaction;
         this.paymentTransaction = paymentTransaction;
         this.deliveryTransaction = deliveryTransaction;

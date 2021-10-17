@@ -1,16 +1,24 @@
 package cs4224.transactions;
 
-import javax.sql.DataSource;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import cs4224.dao.*;
 
 public class PopularItemTransaction extends BaseTransaction {
 
-    public PopularItemTransaction(DataSource ds) {
-        super(ds);
+    private final DistrictDao districtDao;
+    private final CustomerDao customerDao;
+    private final OrderDao orderDao;
+    private final OrderLineDao orderLineDao;
+    private final ItemDao itemDao;
+    private final OrderByItemDao orderByItemDao;
 
+    public PopularItemTransaction(DistrictDao districtDao, CustomerDao customerDao, OrderDao orderDao,
+                                  OrderLineDao orderLineDao, ItemDao itemDao, OrderByItemDao orderByItemDao) {
+        this.districtDao = districtDao;
+        this.customerDao = customerDao;
+        this.orderDao = orderDao;
+        this.orderLineDao = orderLineDao;
+        this.itemDao = itemDao;
+        this.orderByItemDao = orderByItemDao;
     }
 
     @Override

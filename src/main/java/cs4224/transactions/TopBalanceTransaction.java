@@ -1,12 +1,10 @@
 package cs4224.transactions;
 
 
-import javax.sql.DataSource;
-
 public class TopBalanceTransaction extends BaseTransaction {
 
-    public TopBalanceTransaction(DataSource ds) {
-        super(ds);
+    public TopBalanceTransaction() {
+        super();
     }
 
     @Override
