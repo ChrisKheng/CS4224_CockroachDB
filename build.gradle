@@ -33,9 +33,13 @@ dependencies {
             'org.apache.logging.log4j:log4j-slf4j-impl:2.14.1',
             'com.google.guava:guava:31.0.1-jre',
             'org.postgresql:postgresql:42.2.9',
-
+            'com.opencsv:opencsv:4.1',
             'commons-cli:commons-cli:1.4',
-            'com.google.inject:guice:5.0.1'
+            'com.google.inject:guice:5.0.1',
+            'commons-dbutils:commons-dbutils:1.7',
+            'com.fasterxml.jackson.core:jackson-annotations:2.2.1',
+            'com.fasterxml.jackson.core:jackson-databind:2.11.1',
+            'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.4'
     )
 
     compileOnly(

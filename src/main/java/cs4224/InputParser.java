@@ -14,28 +14,30 @@ public class InputParser {
 
      */
     public InputParser() {
-        Option fileName = new Option("f", "fileName", true, "Name of query file");
-        fileName.setRequired(true);
-        options.addOption(fileName);
+        addOption("t", "task", "Type of task", true, true);
+        addOption("k", "keyspace", "Keyspace name", true, true);
+        addOption("i", "ip", "IP address of cassandra cluster", true, false);
+        addOption("p", "port", "Port of cassandra cluster", true, false);
+        addOption("c", "certs", "Cert Path", true, true);
+        addOption("pw", "password", "Password", true, true);
+        addOption("u", "user", "User", true, true);
+        addOption("f", "fileName", "Name of query file", true, false);
+        addOption("l", "logFileName", "Name of log file", true, false);
+    }
 
-        Option keyspace = new Option("k", "keyspace", true, "Keyspace name");
-        keyspace.setRequired(true);
-        options.addOption(keyspace);
-
-        Option ip = new Option("i", "ip", true, "IP address " +
-                "of cassandra cluster");
-        options.addOption(ip);
-
-        Option port = new Option("p", "port", true, "Port of cassandra cluster");
-        options.addOption(port);
-
-        Option logFileName = new Option("l", "logFileName", true, "Name of log file");
-        options.addOption(logFileName);
+    private void addOption(String opt, String longOpt, String description, boolean hasArg, boolean isRequired) {
+        Option option = new Option(opt, longOpt, hasArg, description);
+        option.setRequired(isRequired);
+        options.addOption(option);
     }
 
     public CommandLine parse(String[] args) {
         try {
-            return parser.parse(options, args);
+            final CommandLine cli = parser.parse(options, args);
+            if (cli.getOptionValue("t").equalsIgnoreCase("transaction") && !cli.hasOption("f")) {
+                throw new MissingArgumentException("Missing argument for option: fileName");
+            }
+            return cli;
         } catch (ParseException e) {
             System.err.println(e.getMessage());
             helpFormatter.printHelp("Main", options);

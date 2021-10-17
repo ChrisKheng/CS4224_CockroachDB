@@ -1,13 +1,11 @@
 package cs4224.transactions;
 
-import javax.sql.DataSource;
 import java.util.HashSet;
 
 public class RelatedCustomerTransaction extends BaseTransaction {
 
 
-    public RelatedCustomerTransaction(DataSource ds) {
-        super(ds);
+    public RelatedCustomerTransaction() {
 
 
     }

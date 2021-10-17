@@ -4,10 +4,7 @@ import javax.sql.DataSource;
 
 public class OrderStatusTransaction extends BaseTransaction {
 
-    public OrderStatusTransaction(final DataSource ds) {
-        super(ds);
-
-
+    public OrderStatusTransaction() {
     }
 
     @Override

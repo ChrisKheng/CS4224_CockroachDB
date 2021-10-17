@@ -1,13 +1,11 @@
 package cs4224.transactions;
 
-import javax.sql.DataSource;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class StockLevelTransaction extends BaseTransaction {
 
-    public StockLevelTransaction(DataSource ds) {
-        super(ds);
+    public StockLevelTransaction() {
     }
 
     @Override

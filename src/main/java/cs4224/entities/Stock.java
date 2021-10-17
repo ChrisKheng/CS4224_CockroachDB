@@ -14,14 +14,17 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderLine {
+public class Stock {
 
-    @JsonProperty("ol_i_id")
-    private Integer itemId;
-
-    @JsonProperty("ol_quantity")
+    @JsonProperty("s_quantity")
     private BigDecimal quantity;
 
-    @JsonProperty("ol_amount")
-    private BigDecimal amount;
+    @JsonProperty("s_ytd")
+    private BigDecimal ytdQuantity;
+
+    @JsonProperty("s_order_cnt")
+    private Integer orderCount;
+
+    @JsonProperty("s_remote_cnt")
+    private Integer remoteOrderCount;
 }
