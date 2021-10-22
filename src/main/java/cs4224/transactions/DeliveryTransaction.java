@@ -17,7 +17,7 @@ public class DeliveryTransaction extends BaseTransaction{
     }
 
     @Override
-    public void execute(String[] dataLines, String[] parameters) {
+    public void execute(String[] dataLines, String[] parameters) throws Exception {
         final int warehouseId = Integer.parseInt(parameters[1]);
         final int carrierId = Integer.parseInt(parameters[2]);
 

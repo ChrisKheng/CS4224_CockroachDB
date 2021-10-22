@@ -6,12 +6,15 @@ import cs4224.utils.Statistics;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class Driver {
     public static long numQueries = 0;
+    private static final int MAX_RETRIES = 3;
 
     private final NewOrderTransaction newOrderTransaction;
     private final PaymentTransaction paymentTransaction;
@@ -38,15 +41,14 @@ public class Driver {
         this.relatedCustomerTransaction = relatedCustomerTransaction;
     }
 
-
-
-    void runQueries(String queryFilename) throws Exception {
+    public void runQueries(String queryFilename) throws Exception {
         File queryTxt = new File(queryFilename);
 
         Scanner scanner = new Scanner(queryTxt);
         BaseTransaction transaction;
 
         List<Long> timeRecord = new ArrayList<>();
+        List<Long> failedTransactions = new LinkedList<>();
 
         long start, end, lStart, lEnd, lapse, totalLapse;
 
@@ -95,20 +97,41 @@ public class Driver {
                     continue;
             }
 
-            lStart = System.nanoTime();
-            System.out.println("\n======================================================================");
-            // System.out.printf("Transaction ID: %d\n", timeRecord.size());
-            System.out.printf("Transaction ID: %d\n", numQueries);
-            transaction.execute(lines, parameters);
+            int numRetries = 0;
+            while (numRetries <= MAX_RETRIES) {
+                if (numRetries == MAX_RETRIES) {
+                   System.out.printf("Max retry reached, skipping transaction %d\n", numQueries);
+                   failedTransactions.add(numQueries);
+                   break;
+                }
 
-            lEnd = System.nanoTime();
-            lapse = TimeUnit.MILLISECONDS.convert(lEnd - lStart, TimeUnit.NANOSECONDS);
-            timeRecord.add(lapse);
-            System.out.printf("Time taken: %d\n", lapse);
-            System.out.println("======================================================================");
+                try {
+                    lStart = System.nanoTime();
+                    System.out.println("\n======================================================================");
+                    System.out.printf("Transaction ID: %d\n", numQueries);
+                    transaction.execute(lines, parameters);
+
+                    lEnd = System.nanoTime();
+                    lapse = TimeUnit.MILLISECONDS.convert(lEnd - lStart, TimeUnit.NANOSECONDS);
+                    timeRecord.add(lapse);
+                    System.out.printf("Time taken: %d\n", lapse);
+                    System.out.println("======================================================================");
+                    break;
+                } catch (Exception e) {
+                    numRetries++;
+                    System.out.printf("Transaction %d fails, attempt=%d\n", numQueries, numRetries);
+                    e.printStackTrace(System.out);
+                }
+            }
         }
         end = System.nanoTime();
         totalLapse = TimeUnit.SECONDS.convert(end - start, TimeUnit.NANOSECONDS);
+
+        System.err.printf("Total skipped transactions: %d\n", failedTransactions.size());
+        String failedTransactionsString = String.join(",",
+                failedTransactions.stream().map(l -> l.toString()).collect(Collectors.toList()));
+        System.err.printf("Skipped transactions: %s\n", failedTransactionsString);
+
         Statistics.computeTimeStatistics(timeRecord, totalLapse);
 
         scanner.close();

@@ -8,7 +8,7 @@ public class TopBalanceTransaction extends BaseTransaction {
     }
 
     @Override
-    public void execute(String[] dataLines, String[] parameters) {
+    public void execute(String[] dataLines, String[] parameters) throws Exception {
 
     }
 }

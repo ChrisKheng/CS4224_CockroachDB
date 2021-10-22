@@ -33,7 +33,7 @@ public class Main {
         String user = parsedArguments.getOptionValue("u");
         String ip = parsedArguments.hasOption("i") ? parsedArguments.getOptionValue("i") : "";
         int port = parsedArguments.hasOption("p") ? Integer.parseInt(parsedArguments.getOptionValue("p")) : -1;
-        Injector injector = Guice.createInjector(new BaseModule(keyspace, ip, port, certPath, password, user));
+        Injector injector = Guice.createInjector(new BaseModule(keyspace, ip, port, password, user));
 
         switch (task.toLowerCase()) {
             case "transaction":
