@@ -13,14 +13,14 @@ import lombok.NoArgsConstructor;
 public class OrderByItem {
 
     @JsonProperty("o_id")
-    private Integer orderId;
+    private Long orderId;
 
     @JsonProperty("o_w_id")
-    private Integer warehouseId;
+    private Long warehouseId;
 
     @JsonProperty("o_d_id")
-    private Integer districtId;
+    private Long districtId;
 
     @JsonProperty("i_id")
-    private Integer itemId;
+    private Long itemId;
 }

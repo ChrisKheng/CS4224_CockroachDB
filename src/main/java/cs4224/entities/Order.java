@@ -16,19 +16,19 @@ import java.time.Instant;
 public class Order {
 
     @JsonProperty("o_id")
-    private Integer id;
+    private Long id;
 
     @JsonProperty("o_w_id")
-    private Integer warehouseId;
+    private Long warehouseId;
 
     @JsonProperty("o_d_id")
-    private Integer districtId;
+    private Long districtId;
 
     @JsonProperty("o_c_id")
-    private Integer customerId;
+    private Long customerId;
 
     @JsonProperty("o_carrier_id")
-    private Integer carrierId;
+    private Long carrierId;
 
     @JsonProperty("o_ol_cnt")
     private BigDecimal numItems;

@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 public class Warehouse {
 
     @JsonProperty("w_id")
-    private Integer id;
+    private Long id;
 
     @JsonProperty("w_name")
     private String name;
