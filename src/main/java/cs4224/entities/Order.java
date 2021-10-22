@@ -16,19 +16,19 @@ import java.time.Instant;
 public class Order {
 
     @JsonProperty("o_id")
-    private Long id;
+    private long id;
 
     @JsonProperty("o_w_id")
-    private Long warehouseId;
+    private long warehouseId;
 
     @JsonProperty("o_d_id")
-    private Long districtId;
+    private long districtId;
 
     @JsonProperty("o_c_id")
-    private Long customerId;
+    private long customerId;
 
     @JsonProperty("o_carrier_id")
-    private Long carrierId;
+    private long carrierId;
 
     @JsonProperty("o_ol_cnt")
     private BigDecimal numItems;
@@ -38,5 +38,8 @@ public class Order {
 
     @JsonProperty("o_entry_d")
     private Instant entryDateTime;
-    
+
+    public boolean isEqualOrderSpecifier(Order o) {
+        return warehouseId == o.warehouseId && districtId == o.districtId && id == o.id;
+    }
 }

@@ -23,8 +23,8 @@ public class Stock {
     private BigDecimal ytdQuantity;
 
     @JsonProperty("s_order_cnt")
-    private Long orderCount;
+    private long orderCount;
 
     @JsonProperty("s_remote_cnt")
-    private Long remoteOrderCount;
+    private long remoteOrderCount;
 }

@@ -19,13 +19,13 @@ import java.time.Instant;
 public class Customer {
 
     @JsonProperty("c_id")
-    private Long id;
+    private long id;
 
     @JsonProperty("c_w_id")
-    private Long warehouseId;
+    private long warehouseId;
 
     @JsonProperty("c_d_id")
-    private Long districtId;
+    private long districtId;
 
     @JsonProperty("c_first")
     private String firstName;
@@ -73,10 +73,10 @@ public class Customer {
     private Float paymentYTD;
 
     @JsonProperty("c_payment_cnt")
-    private Long numPayments;
+    private long numPayments;
 
     @JsonProperty("c_delivery_cnt")
-    private Long numDeliveries;
+    private long numDeliveries;
 
     @JsonProperty("c_data")
     private String miscData;

@@ -15,10 +15,10 @@ import java.math.BigDecimal;
 public class District {
 
     @JsonProperty("d_id")
-    private Long id;
+    private long id;
 
     @JsonProperty("d_w_id")
-    private Long warehouseId;
+    private long warehouseId;
 
     @JsonProperty("d_name")
     private String name;
@@ -45,7 +45,7 @@ public class District {
     private BigDecimal amountPaidYTD;
 
     @JsonProperty("d_next_o_id")
-    private Long nextOrderId;
+    private long nextOrderId;
 
     public String toAddress() {
         return String.format(" Address (street_1, street_2, city, state, zip) : (%s, %s, %s, %s, %s)",

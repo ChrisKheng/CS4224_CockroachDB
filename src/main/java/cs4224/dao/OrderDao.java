@@ -27,7 +27,7 @@ public class OrderDao {
         return queryRunner.query(query, handler, warehouseId, districtId, customerId);
     }
 
-    public Long getCustomerIdOfOrder(Long warehouseId, Long districtId, Long orderId) throws SQLException {
+    public long getCustomerIdOfOrder(Long warehouseId, Long districtId, Long orderId) throws SQLException {
         ScalarHandler<Long> handler = new ScalarHandler<>("O_C_ID");
         String query = String.format("SELECT O_C_ID FROM %s.orders WHERE O_W_ID = ? AND O_D_ID = ? AND O_ID = ?",
                 schema);

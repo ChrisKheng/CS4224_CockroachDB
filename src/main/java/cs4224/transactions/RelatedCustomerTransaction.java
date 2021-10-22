@@ -41,11 +41,11 @@ public class RelatedCustomerTransaction extends BaseTransaction {
         System.out.printf("\n");
     }
 
-    public HashSet<Customer> executeAndGetResult(Long customerWarehouseId, Long customerDistrictId, Long customerId)
+    public HashSet<Customer> executeAndGetResult(long customerWarehouseId, long customerDistrictId, long customerId)
             throws Exception {
         List<Long> orderIds = orderDao.getOrderIdsOfCustomer(customerWarehouseId, customerDistrictId, customerId);
         HashSet<Order> relatedOrders = new HashSet<>();
-        for (Long orderId : orderIds) {
+        for (long orderId : orderIds) {
             HashSet<Order> result = getRelatedOrders(Order.builder()
                     .warehouseId(customerWarehouseId)
                     .districtId(customerDistrictId)
@@ -61,17 +61,22 @@ public class RelatedCustomerTransaction extends BaseTransaction {
                 order.getId());
         HashSet<Order> result = new HashSet<>();
 
-        for (Long itemId : itemIdsSet) {
+        for (long itemId : itemIdsSet) {
             List<Order> relatedOrders = orderByItemDao.getOrdersOfItem(itemId);
 
             for (Order relatedOrder : relatedOrders) {
-                if (relatedOrder.getWarehouseId() == order.getWarehouseId()) {
+                boolean isSameOrder = relatedOrder.isEqualOrderSpecifier(order);
+                boolean isSameWarehouse = relatedOrder.getWarehouseId() == order.getWarehouseId();
+                if (isSameOrder || isSameWarehouse) {
                     continue;
                 }
 
                 HashSet<Long> relatedOrderItemIds = orderLineDao.getItemIdsOfOrder(relatedOrder.getWarehouseId(),
                         relatedOrder.getDistrictId(), relatedOrder.getId());
-                for (Long relatedOrderItemId : relatedOrderItemIds) {
+                for (long relatedOrderItemId : relatedOrderItemIds) {
+                    // CANNOT use == to compare to Long objects since they are now objects and == means to compare reference
+                    // instead of its value. So, using == to compare two long values will always result in false even
+                    // if their values are equal cuz == is comparing the reference.
                     if (relatedOrderItemId != itemId && itemIdsSet.contains(relatedOrderItemId)) {
                         result.add(relatedOrder);
                         break;
@@ -86,7 +91,7 @@ public class RelatedCustomerTransaction extends BaseTransaction {
     public HashSet<Customer> getCustomersOfOrders(HashSet<Order> orders) throws Exception {
         HashSet<Customer> result = new HashSet<>();
         for (Order order : orders) {
-            Long customerId = orderDao.getCustomerIdOfOrder(order.getWarehouseId(), order.getDistrictId(),
+            long customerId = orderDao.getCustomerIdOfOrder(order.getWarehouseId(), order.getDistrictId(),
                     order.getId());
             result.add(Customer.builder()
                     .warehouseId(order.getWarehouseId())

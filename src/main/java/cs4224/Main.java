@@ -27,13 +27,12 @@ public class Main {
         }
 
         String task = parsedArguments.getOptionValue("t");
-        String keyspace = parsedArguments.getOptionValue("k");
-        String certPath = parsedArguments.getOptionValue("c");
+        String database = parsedArguments.getOptionValue("d");
         String password = parsedArguments.getOptionValue("pw");
         String user = parsedArguments.getOptionValue("u");
         String ip = parsedArguments.hasOption("i") ? parsedArguments.getOptionValue("i") : "";
         int port = parsedArguments.hasOption("p") ? Integer.parseInt(parsedArguments.getOptionValue("p")) : -1;
-        Injector injector = Guice.createInjector(new BaseModule(keyspace, ip, port, password, user));
+        Injector injector = Guice.createInjector(new BaseModule(database, ip, port, password, user));
 
         switch (task.toLowerCase()) {
             case "transaction":
