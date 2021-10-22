@@ -7,5 +7,5 @@ public abstract class BaseTransaction {
 
     }
 
-    public abstract void execute(final String[] dataLines, final String[] parameters);
+    public abstract void execute(final String[] dataLines, final String[] parameters) throws Exception;
 }

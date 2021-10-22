@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class OrderLine {
 
     @JsonProperty("ol_i_id")
-    private Integer itemId;
+    private long itemId;
 
     @JsonProperty("ol_quantity")
     private BigDecimal quantity;

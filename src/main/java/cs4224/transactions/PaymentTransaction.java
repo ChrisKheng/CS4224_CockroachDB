@@ -19,7 +19,7 @@ public class PaymentTransaction extends BaseTransaction {
     }
 
     @Override
-    public void execute(String[] dataLines, String[] parameters) {
+    public void execute(String[] dataLines, String[] parameters) throws Exception {
         final int customerWarehouseId = Integer.parseInt(parameters[1]);
         final int customerDistrictId = Integer.parseInt(parameters[2]);
         final int customerId = Integer.parseInt(parameters[3]);

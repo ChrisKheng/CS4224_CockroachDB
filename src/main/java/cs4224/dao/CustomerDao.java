@@ -28,7 +28,6 @@ public class CustomerDao {
         return customers.get(0);
     }
 
-
     private List<Customer> getQueryResult(String query, Object... params) {
         try {
             List<Map<String, Object>> result = this.queryRunner.query(query, new MapListHandler(), params);

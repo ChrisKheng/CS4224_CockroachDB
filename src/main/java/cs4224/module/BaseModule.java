@@ -7,29 +7,26 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import cs4224.dao.*;
 import cs4224.transactions.*;
 import org.apache.commons.dbutils.QueryRunner;
-import org.postgresql.ds.PGSimpleDataSource;
-import org.postgresql.jdbc.SslMode;
 
 import javax.sql.DataSource;
-import java.nio.file.Paths;
 
 public class BaseModule extends AbstractModule {
-    private final String keyspace;
+    private final String database;
     private final String ip;
     private final int port;
-    private final String certPath;
     private final String password;
     private final String user;
     private final String schema;
 
-    public BaseModule(String keyspace, String ip, int port, String certPath, String password, String user) {
-        this.keyspace = keyspace;
+    public BaseModule(String database, String ip, int port, String password, String user) {
+        this.database = database;
         this.ip = ip.equals("") ? "localhost" : ip;
         this.port = port == -1 ? 26257 : port;
-        this.certPath = certPath;
         this.password = password;
         this.user = user;
         this.schema = "wholesale";
@@ -39,22 +36,23 @@ public class BaseModule extends AbstractModule {
     protected void configure() {
     }
 
-
     @Provides
     @Singleton
     public DataSource provideDataSource() {
-        PGSimpleDataSource ds = new PGSimpleDataSource();
-        ds.setServerNames(new String[]{ip});
-        ds.setPortNumbers(new int[]{port});
-        ds.setDatabaseName(keyspace);
-        ds.setPassword(password);
-        ds.setUser(user);
-        ds.setSslMode(SslMode.VERIFY_FULL.value);
-        ds.setSslRootCert(Paths.get(certPath, "ca.crt").toString());
-        ds.setSslCert(Paths.get(certPath,"client.root.crt").toString());
-        ds.setSslKey(Paths.get(certPath, "client.root.key").toString());
-        ds.setReWriteBatchedInserts(true); // add `rewriteBatchedInserts=true` to pg connection string
-        ds.setApplicationName("Wholesale");
+        HikariConfig config = new HikariConfig();
+        String url = String.format("jdbc:postgresql://%s:%s/%s", ip, port, database);
+        config.setJdbcUrl(url);
+        config.setUsername(user);
+        config.setPassword(password);
+        config.addDataSourceProperty("ssl", "true");
+        config.addDataSourceProperty("sslmode", "require");
+        config.addDataSourceProperty("reWriteBatchedInserts", "true");
+        config.setAutoCommit(false); // Need to manually commit, but it's good for insert/update transactions that fail I guess
+        config.setMaximumPoolSize(40);
+        config.setKeepaliveTime(150000);
+
+        HikariDataSource ds = new HikariDataSource(config);
+
         return ds;
     }
 
@@ -148,8 +146,9 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public RelatedCustomerTransaction provideRelatedCustomerTransaction() {
-        return new RelatedCustomerTransaction();
+    public RelatedCustomerTransaction provideRelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao,
+                                                                        OrderByItemDao orderByItemDao) {
+        return new RelatedCustomerTransaction(orderDao, orderLineDao, orderByItemDao);
     }
 
     @Provides

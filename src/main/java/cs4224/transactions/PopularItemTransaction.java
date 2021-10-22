@@ -22,7 +22,7 @@ public class PopularItemTransaction extends BaseTransaction {
     }
 
     @Override
-    public void execute(String[] dataLines, String[] parameters) {
+    public void execute(String[] dataLines, String[] parameters) throws Exception {
         final int warehouseId = Integer.parseInt(parameters[1]);
         final int districtId = Integer.parseInt(parameters[2]);
         final int L = Integer.parseInt(parameters[3]);

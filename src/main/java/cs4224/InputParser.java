@@ -15,10 +15,9 @@ public class InputParser {
      */
     public InputParser() {
         addOption("t", "task", "Type of task", true, true);
-        addOption("k", "keyspace", "Keyspace name", true, true);
-        addOption("i", "ip", "IP address of cassandra cluster", true, false);
-        addOption("p", "port", "Port of cassandra cluster", true, false);
-        addOption("c", "certs", "Cert Path", true, true);
+        addOption("d", "Database", "Database name", true, true);
+        addOption("i", "ip", "IP address of CockroachDB cluster", true, false);
+        addOption("p", "port", "Port of CockroachDB cluster", true, false);
         addOption("pw", "password", "Password", true, true);
         addOption("u", "user", "User", true, true);
         addOption("f", "fileName", "Name of query file", true, false);
