@@ -1,40 +1,35 @@
 package cs4224.dao;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cs4224.entities.Customer;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.MapListHandler;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class CustomerDao {
-    private final ObjectMapper objectMapper;
-    private final QueryRunner queryRunner;
+    private final QueryResultToEntityMapper queryResultToEntityMapper;
     private final String schema;
 
-    public CustomerDao(final ObjectMapper objectMapper, final QueryRunner queryRunner, final String schema) {
-        this.objectMapper = objectMapper;
-        this.queryRunner = queryRunner;
+    public CustomerDao(final QueryResultToEntityMapper queryResultToEntityMapper, final String schema) {
         this.schema = schema;
+        this.queryResultToEntityMapper = queryResultToEntityMapper;
     }
 
-    public Customer getCustomerById(Integer warehouseId, Integer districtId, Integer customerId) {
-        List<Customer> customers = this.getQueryResult(String.format("SELECT * FROM %s.customer WHERE C_W_ID = ? AND " +
-                        "C_D_ID = ? AND C_ID = ?", schema), warehouseId, districtId, customerId);
+    public Customer updateAndGetById(double payment, long warehouseId, long districtId, long customerId) throws SQLException {
+        final String updateAndGetQuery = String.format("UPDATE %s.CUSTOMER SET (C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT) = " +
+                "(C_BALANCE - ?, C_YTD_PAYMENT + ?, C_PAYMENT_CNT + 1) " +
+                "WHERE (C_W_ID, C_D_ID, C_ID) = (?, ?, ?) " +
+                "RETURNING C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2, C_CITY, C_STATE, C_ZIP, " +
+                "C_PHONE, C_SINCE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, C_BALANCE ", schema);
+        final List<Customer> customers = queryResultToEntityMapper.getQueryResult(updateAndGetQuery, Customer.class,
+                new BigDecimal(payment), payment, warehouseId, districtId, customerId);
         return customers.get(0);
     }
 
-    private List<Customer> getQueryResult(String query, Object... params) {
-        try {
-            List<Map<String, Object>> result = this.queryRunner.query(query, new MapListHandler(), params);
-            return objectMapper.convertValue(result, new TypeReference<List<Customer>>(){});
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        return Collections.EMPTY_LIST;
+    public Customer getNameById(long warehouseId, long districtId, long customerId) throws SQLException {
+        final String query = String.format("SELECT C_FIRST, C_MIDDLE, C_LAST FROM %s.customer WHERE C_W_ID = ? AND C_D_ID = ? " +
+                "AND C_ID = ?",  schema);
+        final List<Customer> customers = queryResultToEntityMapper.getQueryResult(query, Customer.class, warehouseId,
+                districtId, customerId);
+        return customers.get(0);
     }
 }

@@ -1,8 +1,5 @@
 package cs4224.transactions;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class StockLevelTransaction extends BaseTransaction {
 
     public StockLevelTransaction() {
@@ -15,5 +12,10 @@ public class StockLevelTransaction extends BaseTransaction {
         final int threshold = Integer.parseInt(parameters[3]);
         final int noOfOrders = Integer.parseInt(parameters[4]);
 
+    }
+
+    @Override
+    public String getType() {
+        return "Stock Level";
     }
 }

@@ -1,8 +1,8 @@
 package cs4224.dao;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cs4224.entities.Order;
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.google.inject.Inject;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 
@@ -11,9 +11,20 @@ import java.util.List;
 import java.util.Map;
 
 public class QueryResultToEntityMapper {
-    public static List<Order> getOrderQueryResult(QueryRunner queryRunner, ObjectMapper objectMapper,
-                                              String query, Object... params) throws SQLException {
-        List<Map<String, Object>> result = queryRunner.query(query, new MapListHandler(), params);
-        return objectMapper.convertValue(result, new TypeReference<List<Order>>(){});
+
+    private final QueryRunner queryRunner;
+    private final ObjectMapper objectMapper;
+
+    @Inject
+    public QueryResultToEntityMapper(final QueryRunner queryRunner, final ObjectMapper objectMapper) {
+        this.queryRunner = queryRunner;
+        this.objectMapper = objectMapper;
     }
+
+    public<T> List<T> getQueryResult(String query, Class<T> clazz, Object... params) throws SQLException {
+        final List<Map<String, Object>> result = queryRunner.query(query, new MapListHandler(), params);
+        final CollectionLikeType type = objectMapper.getTypeFactory().constructCollectionLikeType(List.class, clazz);
+        return objectMapper.convertValue(result, type);
+    }
+
 }
