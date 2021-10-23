@@ -1,8 +1,6 @@
 package cs4224.transactions;
 
 
-import javax.sql.DataSource;
-
 public class NewOrderTransaction extends BaseTransaction {
     private int customerId;
     private int warehouseId;
@@ -23,5 +21,10 @@ public class NewOrderTransaction extends BaseTransaction {
         for (String line : dataLines) {
             System.out.println(line);
         }
+    }
+
+    @Override
+    public String getType() {
+        return "New Order";
     }
 }

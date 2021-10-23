@@ -11,4 +11,9 @@ public class TopBalanceTransaction extends BaseTransaction {
     public void execute(String[] dataLines, String[] parameters) throws Exception {
 
     }
+
+    @Override
+    public String getType() {
+        return "Top Balance";
+    }
 }

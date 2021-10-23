@@ -47,7 +47,6 @@ public class BaseModule extends AbstractModule {
         config.addDataSourceProperty("ssl", "true");
         config.addDataSourceProperty("sslmode", "require");
         config.addDataSourceProperty("reWriteBatchedInserts", "true");
-        config.setAutoCommit(false); // Need to manually commit, but it's good for insert/update transactions that fail I guess
         config.setMaximumPoolSize(40);
         config.setKeepaliveTime(150000);
 
@@ -70,45 +69,53 @@ public class BaseModule extends AbstractModule {
     }
 
     @Provides
-    @Inject
-    public CustomerDao provideCustomerDao(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new CustomerDao(objectMapper, queryRunner, schema);
+    @Singleton
+    public QueryResultToEntityMapper provideQueryResultToEntityMapper(ObjectMapper objectMapper, QueryRunner queryRunner) {
+        return new QueryResultToEntityMapper(queryRunner, objectMapper);
     }
 
     @Provides
     @Inject
-    public DistrictDao provideDistrictDao(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new DistrictDao(objectMapper, queryRunner, schema);
+    public CustomerDao provideCustomerDao(QueryResultToEntityMapper queryResultToEntityMapper) {
+        return new CustomerDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public ItemDao provideItemDao(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new ItemDao(objectMapper, queryRunner, schema);
+    public DistrictDao provideDistrictDao(QueryResultToEntityMapper queryResultToEntityMapper) {
+        return new DistrictDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public OrderByItemDao provideOrderByItemDao(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new OrderByItemDao(objectMapper, queryRunner, schema);
+    public ItemDao provideItemDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
+                                  QueryRunner queryRunner) {
+        return new ItemDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
     }
 
     @Provides
     @Inject
-    public OrderDao provideOrderDao(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new OrderDao(objectMapper, queryRunner, schema);
+    public OrderByItemDao provideOrderByItemDao(QueryResultToEntityMapper queryResultToEntityMapper) {
+        return new OrderByItemDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public OrderLineDao provideOrderLineDao(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new OrderLineDao(objectMapper, queryRunner, schema);
+    public OrderDao provideOrderDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
+                                    QueryRunner queryRunner) {
+        return new OrderDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
     }
 
     @Provides
     @Inject
-    public WarehouseDao provideWarehouseDao(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new WarehouseDao(objectMapper, queryRunner, schema);
+    public OrderLineDao provideOrderLineDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper, QueryRunner queryRunner) {
+        return new OrderLineDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
+    }
+
+    @Provides
+    @Inject
+    public WarehouseDao provideWarehouseDao(QueryResultToEntityMapper queryResultToEntityMapper, QueryRunner queryRunner) {
+        return new WarehouseDao(queryResultToEntityMapper, queryRunner, schema);
     }
 
     @Provides
@@ -140,8 +147,8 @@ public class BaseModule extends AbstractModule {
     @Inject
     public PopularItemTransaction providePopularItemTransaction(DistrictDao districtDao, CustomerDao customerDao,
                                                                 OrderDao orderDao, OrderLineDao orderLineDao,
-                                                                ItemDao itemDao, OrderByItemDao orderByItemDao) {
-        return new PopularItemTransaction(districtDao, customerDao, orderDao, orderLineDao, itemDao, orderByItemDao);
+                                                                ItemDao itemDao) {
+        return new PopularItemTransaction(districtDao, customerDao, orderDao, orderLineDao, itemDao);
     }
 
     @Provides
