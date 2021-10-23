@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import cs4224.dao.*;
-import cs4224.utils.Utils;
+import cs4224.dao.OrderByItemDao;
+import cs4224.dao.OrderDao;
+import cs4224.dao.OrderLineDao;
+import cs4224.dao.QueryResultToEntityMapper;
 import org.apache.commons.dbutils.QueryRunner;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -42,6 +44,7 @@ import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 public class InitializationExtension implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
     private static boolean started = false;
     private DataSource dataSource;
+    public static QueryResultToEntityMapper queryResultToEntityMapper;
     public static QueryRunner queryRunner;
     public static OrderDao orderDao;
     public static OrderLineDao orderLineDao;
@@ -66,9 +69,10 @@ public class InitializationExtension implements BeforeAllCallback, ExtensionCont
         dataSource = getDataSource();
         queryRunner = getQueryRunner(dataSource);
         ObjectMapper mapper = getObjectMapper();
-        orderDao = getOrderDao(mapper, queryRunner);
-        orderLineDao = getOrderLineDao(mapper, queryRunner);
-        orderByItemDao = getOrderByItemDao(mapper, queryRunner);
+        queryResultToEntityMapper = new QueryResultToEntityMapper(queryRunner, mapper);
+        orderDao = getOrderDao(queryResultToEntityMapper, mapper, queryRunner);
+        orderLineDao = getOrderLineDao(queryResultToEntityMapper, mapper, queryRunner);
+        orderByItemDao = getOrderByItemDao(queryResultToEntityMapper);
     }
 
     private DataSource getDataSource() throws Exception {
@@ -94,16 +98,18 @@ public class InitializationExtension implements BeforeAllCallback, ExtensionCont
         return objectMapper;
     }
 
-    private OrderByItemDao getOrderByItemDao(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new OrderByItemDao(objectMapper, queryRunner, schema);
+    private OrderByItemDao getOrderByItemDao(QueryResultToEntityMapper queryResultToEntityMapper) {
+        return new OrderByItemDao(queryResultToEntityMapper, schema);
     }
 
-    private OrderDao getOrderDao(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new OrderDao(objectMapper, queryRunner, schema);
+    private OrderDao getOrderDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
+                                 QueryRunner queryRunner) {
+        return new OrderDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
     }
 
-    private OrderLineDao getOrderLineDao(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new OrderLineDao(objectMapper, queryRunner, schema);
+    private OrderLineDao getOrderLineDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
+                                         QueryRunner queryRunner) {
+        return new OrderLineDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
     }
 
     @Override

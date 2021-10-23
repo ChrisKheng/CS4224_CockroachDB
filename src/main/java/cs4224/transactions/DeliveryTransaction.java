@@ -2,10 +2,6 @@ package cs4224.transactions;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 public class DeliveryTransaction extends BaseTransaction{
 
@@ -21,5 +17,10 @@ public class DeliveryTransaction extends BaseTransaction{
         final int warehouseId = Integer.parseInt(parameters[1]);
         final int carrierId = Integer.parseInt(parameters[2]);
 
+    }
+
+    @Override
+    public String getType() {
+        return "Delivery";
     }
 }

@@ -1,7 +1,5 @@
 package cs4224.transactions;
 
-import javax.sql.DataSource;
-
 public class OrderStatusTransaction extends BaseTransaction {
 
     public OrderStatusTransaction() {
@@ -12,5 +10,10 @@ public class OrderStatusTransaction extends BaseTransaction {
         final int warehouseId = Integer.parseInt(parameters[1]);
         final int districtId = Integer.parseInt(parameters[2]);
         final int customerId = Integer.parseInt(parameters[3]);
+    }
+
+    @Override
+    public String getType() {
+        return "Order Status";
     }
 }

@@ -41,6 +41,11 @@ public class RelatedCustomerTransaction extends BaseTransaction {
         System.out.printf("\n");
     }
 
+    @Override
+    public String getType() {
+        return "Related Customer";
+    }
+
     public HashSet<Customer> executeAndGetResult(long customerWarehouseId, long customerDistrictId, long customerId)
             throws Exception {
         List<Long> orderIds = orderDao.getOrderIdsOfCustomer(customerWarehouseId, customerDistrictId, customerId);
