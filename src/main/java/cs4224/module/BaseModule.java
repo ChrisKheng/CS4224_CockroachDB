@@ -47,7 +47,6 @@ public class BaseModule extends AbstractModule {
         config.addDataSourceProperty("ssl", "true");
         config.addDataSourceProperty("sslmode", "require");
         config.addDataSourceProperty("reWriteBatchedInserts", "true");
-        config.setAutoCommit(false); // Need to manually commit, but it's good for insert/update transactions that fail I guess
         config.setMaximumPoolSize(40);
         config.setKeepaliveTime(150000);
 
