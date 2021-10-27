@@ -37,7 +37,6 @@ public class OrderDao {
         return queryRunner.query(query, handler, warehouseId, districtId, orderId);
     }
 
-
     public List<Order> getById(long warehouseId, long districtId, long greaterThanId, long lessThanId) throws SQLException {
         final String query = String.format("SELECT O_ID, O_ENTRY_D, O_C_ID FROM %s.orders WHERE O_W_ID = ? AND O_D_ID = ? " +
                 "AND O_ID >= ? AND O_ID < ?", schema);
