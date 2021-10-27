@@ -95,12 +95,6 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public OrderByItemDao provideOrderByItemDao(QueryResultToEntityMapper queryResultToEntityMapper) {
-        return new OrderByItemDao(queryResultToEntityMapper, schema);
-    }
-
-    @Provides
-    @Inject
     public OrderDao provideOrderDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
                                     QueryRunner queryRunner) {
         return new OrderDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
@@ -139,8 +133,9 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public OrderStatusTransaction provideOrderStatusTransaction() {
-        return new OrderStatusTransaction();
+    public OrderStatusTransaction provideOrderStatusTransaction(WarehouseDao warehouseDao, DistrictDao districtDao,
+                                                                CustomerDao customerDao) {
+        return new OrderStatusTransaction(warehouseDao, districtDao, customerDao);
     }
 
     @Provides
@@ -153,9 +148,8 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public RelatedCustomerTransaction provideRelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao,
-                                                                        OrderByItemDao orderByItemDao) {
-        return new RelatedCustomerTransaction(orderDao, orderLineDao, orderByItemDao);
+    public RelatedCustomerTransaction provideRelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao) {
+        return new RelatedCustomerTransaction(orderDao, orderLineDao);
     }
 
     @Provides

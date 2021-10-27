@@ -1,6 +1,5 @@
 package cs4224.transactions;
 
-import cs4224.dao.OrderByItemDao;
 import cs4224.dao.OrderDao;
 import cs4224.dao.OrderLineDao;
 import cs4224.entities.Customer;
@@ -12,12 +11,10 @@ import java.util.List;
 public class RelatedCustomerTransaction extends BaseTransaction {
     private final OrderDao orderDao;
     private final OrderLineDao orderLineDao;
-    private final OrderByItemDao orderByItemDao;
 
-    public RelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao, OrderByItemDao orderByItemDao) {
+    public RelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao) {
         this.orderDao = orderDao;
         this.orderLineDao = orderLineDao;
-        this.orderByItemDao = orderByItemDao;
     }
 
     @Override
@@ -67,7 +64,7 @@ public class RelatedCustomerTransaction extends BaseTransaction {
         HashSet<Order> result = new HashSet<>();
 
         for (long itemId : itemIdsSet) {
-            List<Order> relatedOrders = orderByItemDao.getOrdersOfItem(itemId);
+            List<Order> relatedOrders = orderLineDao.getOrdersOfItem(itemId);
 
             for (Order relatedOrder : relatedOrders) {
                 boolean isSameOrder = relatedOrder.isEqualOrderSpecifier(order);

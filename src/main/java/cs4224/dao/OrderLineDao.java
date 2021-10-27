@@ -1,6 +1,7 @@
 package cs4224.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cs4224.entities.Order;
 import cs4224.entities.OrderLine;
 import cs4224.handlers.HashSetHandler;
 import org.apache.commons.dbutils.QueryRunner;
@@ -44,5 +45,12 @@ public class OrderLineDao {
                 "AND OL_O_ID = ? AND OL_QUANTITY = ?", schema);
         return queryResultToEntityMapper.getQueryResult(query, OrderLine.class, warehouseId, districtId,
                 orderId, orderLineQuantity);
+    }
+
+    public List<Order> getOrdersOfItem(Long itemId) throws Exception {
+        final String query = String.format("SELECT DISTINCT OL_W_ID AS O_W_ID, OL_D_ID AS O_D_ID, OL_O_ID AS O_ID " +
+                "FROM %s.order_line " +
+                "WHERE OL_I_ID = ?", schema);
+        return queryResultToEntityMapper.getQueryResult(query, Order.class, itemId);
     }
 }
