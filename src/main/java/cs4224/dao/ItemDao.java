@@ -8,12 +8,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class ItemDao {
-    private final QueryResultToEntityMapper queryResultToEntityMapper;
+    private final DbQueryHelper queryResultToEntityMapper;
     private final ObjectMapper objectMapper;
     private final QueryRunner queryRunner;
     private final String schema;
 
-    public ItemDao(final QueryResultToEntityMapper queryResultToEntityMapper, final ObjectMapper objectMapper,
+    public ItemDao(final DbQueryHelper queryResultToEntityMapper, final ObjectMapper objectMapper,
                    final QueryRunner queryRunner, final String schema) {
         this.queryResultToEntityMapper = queryResultToEntityMapper;
         this.objectMapper = objectMapper;

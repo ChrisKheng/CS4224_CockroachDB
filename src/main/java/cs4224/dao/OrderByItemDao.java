@@ -5,10 +5,10 @@ import cs4224.entities.Order;
 import java.util.List;
 
 public class OrderByItemDao {
-    private final QueryResultToEntityMapper queryResultToEntityMapper;
+    private final DbQueryHelper queryResultToEntityMapper;
     private final String schema;
 
-    public OrderByItemDao(final QueryResultToEntityMapper queryResultToEntityMapper, final String schema) {
+    public OrderByItemDao(final DbQueryHelper queryResultToEntityMapper, final String schema) {
         this.queryResultToEntityMapper = queryResultToEntityMapper;
         this.schema = schema;
     }

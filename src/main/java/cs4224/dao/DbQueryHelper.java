@@ -6,17 +6,18 @@ import com.google.inject.Inject;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-public class QueryResultToEntityMapper {
+public class DbQueryHelper {
 
     private final QueryRunner queryRunner;
     private final ObjectMapper objectMapper;
 
     @Inject
-    public QueryResultToEntityMapper(final QueryRunner queryRunner, final ObjectMapper objectMapper) {
+    public DbQueryHelper(final QueryRunner queryRunner, final ObjectMapper objectMapper) {
         this.queryRunner = queryRunner;
         this.objectMapper = objectMapper;
     }
@@ -25,6 +26,17 @@ public class QueryResultToEntityMapper {
         final List<Map<String, Object>> result = queryRunner.query(query, new MapListHandler(), params);
         final CollectionLikeType type = objectMapper.getTypeFactory().constructCollectionLikeType(List.class, clazz);
         return objectMapper.convertValue(result, type);
+    }
+
+    public<T> List<T> getQueryResult(Connection connection, String query, Class<T> clazz, Object... params)
+            throws SQLException {
+        final List<Map<String, Object>> result = queryRunner.query(connection, query, new MapListHandler(), params);
+        final CollectionLikeType type = objectMapper.getTypeFactory().constructCollectionLikeType(List.class, clazz);
+        return objectMapper.convertValue(result, type);
+    }
+
+    public Connection getConnection() throws SQLException {
+        return queryRunner.getDataSource().getConnection();
     }
 
 }
