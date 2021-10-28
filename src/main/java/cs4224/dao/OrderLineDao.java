@@ -45,4 +45,16 @@ public class OrderLineDao {
         return queryResultToEntityMapper.getQueryResult(query, OrderLine.class, warehouseId, districtId,
                 orderId, orderLineQuantity);
     }
+
+    public OrderLine getState(long warehouseId) {
+        try {
+            final String query = String.format("SELECT sum(OL_AMOUNT) as OL_AMOUNT, sum(OL_QUANTITY) as OL_QUANTITY FROM " +
+                    "%s.order_line where OL_W_ID = ?", schema);
+            final List<OrderLine> orderLines = queryResultToEntityMapper.getQueryResult(query, OrderLine.class, warehouseId);
+            return orderLines.get(0);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return new OrderLine();
+        }
+    }
 }
