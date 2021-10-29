@@ -1,13 +1,8 @@
 package cs4224.transactions;
 
-import javax.sql.DataSource;
-
 import cs4224.dao.CustomerDao;
 import cs4224.dao.DistrictDao;
-import cs4224.dao.OrderDao;
 import cs4224.dao.WarehouseDao;
-import cs4224.entities.Customer;
-import cs4224.entities.Order;
 
 public class OrderStatusTransaction extends BaseTransaction {
 
@@ -37,6 +32,6 @@ public class OrderStatusTransaction extends BaseTransaction {
 
     @Override
     public String getType() {
-        return "OrderStatus";
+        return "Order Status";
     }
 }

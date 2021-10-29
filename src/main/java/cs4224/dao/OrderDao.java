@@ -10,12 +10,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class OrderDao {
-    private final QueryResultToEntityMapper queryResultToEntityMapper;
+    private final DbQueryHelper queryResultToEntityMapper;
     private final ObjectMapper objectMapper;
     private final QueryRunner queryRunner;
     private final String schema;
 
-    public OrderDao(final QueryResultToEntityMapper queryResultToEntityMapper, final ObjectMapper objectMapper,
+    public OrderDao(final DbQueryHelper queryResultToEntityMapper, final ObjectMapper objectMapper,
                     final QueryRunner queryRunner, final String schema) {
         this.queryResultToEntityMapper = queryResultToEntityMapper;
         this.objectMapper = objectMapper;
@@ -43,4 +43,16 @@ public class OrderDao {
         return queryResultToEntityMapper.getQueryResult(query, Order.class, warehouseId, districtId,
                 greaterThanId, lessThanId);
     }
+
+    public Order getState() {
+        try {
+            final String query = String.format("SELECT max(O_ID) as O_ID, sum(O_OL_CNT) as O_OL_CNT FROM %s.orders", schema);
+            final List<Order> orders = queryResultToEntityMapper.getQueryResult(query, Order.class);
+            return orders.get(0);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return new Order();
+        }
+    }
+
 }
