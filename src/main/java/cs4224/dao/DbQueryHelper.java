@@ -3,6 +3,7 @@ package cs4224.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.google.inject.Inject;
+import lombok.Getter;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class DbQueryHelper {
 
     private final QueryRunner queryRunner;
@@ -38,5 +40,4 @@ public class DbQueryHelper {
     public Connection getConnection() throws SQLException {
         return queryRunner.getDataSource().getConnection();
     }
-
 }

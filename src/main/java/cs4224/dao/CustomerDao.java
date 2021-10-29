@@ -7,12 +7,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class CustomerDao {
-    private final DbQueryHelper queryResultToEntityMapper;
+    private final DbQueryHelper dbQueryHelper;
     private final String schema;
 
-    public CustomerDao(final DbQueryHelper queryResultToEntityMapper, final String schema) {
+    public CustomerDao(final DbQueryHelper dbQueryHelper, final String schema) {
         this.schema = schema;
-        this.queryResultToEntityMapper = queryResultToEntityMapper;
+        this.dbQueryHelper = dbQueryHelper;
     }
 
     public Customer updateAndGetById(Connection connection, double payment, long warehouseId, long districtId, long customerId) throws SQLException {
@@ -21,7 +21,7 @@ public class CustomerDao {
                 "WHERE (C_W_ID, C_D_ID, C_ID) = (?, ?, ?) " +
                 "RETURNING C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2, C_CITY, C_STATE, C_ZIP, " +
                 "C_PHONE, C_SINCE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, C_BALANCE ", schema);
-        final List<Customer> customers = queryResultToEntityMapper.getQueryResult(connection, updateAndGetQuery,
+        final List<Customer> customers = dbQueryHelper.getQueryResult(connection, updateAndGetQuery,
                 Customer.class, new BigDecimal(payment), payment, warehouseId, districtId, customerId);
         return customers.get(0);
     }
@@ -29,7 +29,7 @@ public class CustomerDao {
     public Customer getNameById(long warehouseId, long districtId, long customerId) throws SQLException {
         final String query = String.format("SELECT C_FIRST, C_MIDDLE, C_LAST FROM %s.customer WHERE C_W_ID = ? AND C_D_ID = ? " +
                 "AND C_ID = ?",  schema);
-        final List<Customer> customers = queryResultToEntityMapper.getQueryResult(query, Customer.class, warehouseId,
+        final List<Customer> customers = dbQueryHelper.getQueryResult(query, Customer.class, warehouseId,
                 districtId, customerId);
         return customers.get(0);
     }
@@ -38,7 +38,7 @@ public class CustomerDao {
         try {
             final String query = String.format("SELECT sum(C_BALANCE) as C_BALANCE, sum(C_YTD_PAYMENT) as C_YTD_PAYMENT, " +
                     "sum(C_PAYMENT_CNT) as C_PAYMENT_CNT, sum(C_DELIVERY_CNT) as C_DELIVERY_CNT FROM %s.CUSTOMER", schema);
-            final List<Customer> customers = queryResultToEntityMapper.getQueryResult(query, Customer.class);
+            final List<Customer> customers = dbQueryHelper.getQueryResult(query, Customer.class);
             return customers.get(0);
         } catch (SQLException ex) {
             ex.printStackTrace();
