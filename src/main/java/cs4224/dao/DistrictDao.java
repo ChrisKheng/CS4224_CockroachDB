@@ -32,4 +32,16 @@ public class DistrictDao {
                 districtId);
         return districts.get(0);
     }
+
+    public District getState() {
+        try {
+            final String query = String.format("SELECT sum(D_YTD) as D_YTD, sum(D_NEXT_O_ID) as D_NEXT_O_ID FROM " +
+                    "%s.DISTRICT", schema);
+            final List<District> districts = queryResultToEntityMapper.getQueryResult(query, District.class);
+            return districts.get(0);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return new District();
+        }
+    }
 }

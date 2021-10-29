@@ -120,6 +120,12 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
+    public StockDao provideStockDao(DbQueryHelper queryResultToEntityMapper) {
+        return new StockDao(queryResultToEntityMapper, schema);
+    }
+
+    @Provides
+    @Inject
     public PaymentTransaction providePaymentTransaction(WarehouseDao warehouseDao, DistrictDao districtDao,
                                                         DbQueryHelper queryResultToEntityMapper,
                                                         CustomerDao customerDao) {

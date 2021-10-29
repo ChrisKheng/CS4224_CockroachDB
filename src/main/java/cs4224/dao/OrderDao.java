@@ -44,4 +44,16 @@ public class OrderDao {
         return queryResultToEntityMapper.getQueryResult(query, Order.class, warehouseId, districtId,
                 greaterThanId, lessThanId);
     }
+
+    public Order getState() {
+        try {
+            final String query = String.format("SELECT max(O_ID) as O_ID, sum(O_OL_CNT) as O_OL_CNT FROM %s.orders", schema);
+            final List<Order> orders = queryResultToEntityMapper.getQueryResult(query, Order.class);
+            return orders.get(0);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return new Order();
+        }
+    }
+
 }

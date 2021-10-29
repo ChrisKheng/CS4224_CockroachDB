@@ -6,6 +6,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WarehouseDao {
@@ -28,5 +29,26 @@ public class WarehouseDao {
         final List<Warehouse> warehouses = queryResultToEntityMapper.getQueryResult(connection, query, Warehouse.class,
                 new BigDecimal(payment), warehouseId);
         return warehouses.get(0);
+    }
+
+    public Warehouse getState() {
+        try {
+            final String query = String.format("SELECT sum(W_YTD) as W_YTD FROM %s.WAREHOUSE", schema);
+            final List<Warehouse> warehouses = queryResultToEntityMapper.getQueryResult(query, Warehouse.class);
+            return warehouses.get(0);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return new Warehouse();
+        }
+    }
+
+    public List<Warehouse> getAllWarehouseIDs() {
+        try {
+            final String query = String.format("SELECT W_ID FROM %s.WAREHOUSE", schema);
+            return queryResultToEntityMapper.getQueryResult(query, Warehouse.class);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }

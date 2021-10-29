@@ -33,4 +33,16 @@ public class CustomerDao {
                 districtId, customerId);
         return customers.get(0);
     }
+
+    public Customer getState() {
+        try {
+            final String query = String.format("SELECT sum(C_BALANCE) as C_BALANCE, sum(C_YTD_PAYMENT) as C_YTD_PAYMENT, " +
+                    "sum(C_PAYMENT_CNT) as C_PAYMENT_CNT, sum(C_DELIVERY_CNT) as C_DELIVERY_CNT FROM %s.CUSTOMER", schema);
+            final List<Customer> customers = queryResultToEntityMapper.getQueryResult(query, Customer.class);
+            return customers.get(0);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return new Customer();
+        }
+    }
 }
