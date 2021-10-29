@@ -14,13 +14,13 @@ public class InputParser {
 
      */
     public InputParser() {
-        addOption("t", "task", "Type of task", true, true);
+        addOption("t", "task", "Type of task: transaction or dbstate", true, true);
         addOption("d", "Database", "Database name", true, true);
         addOption("i", "ip", "IP address of CockroachDB cluster", true, false);
         addOption("p", "port", "Port of CockroachDB cluster", true, false);
-        addOption("pw", "password", "Password", true, true);
-        addOption("u", "user", "User", true, true);
-        addOption("f", "fileName", "Name of query file", true, false);
+        addOption("pw", "password", "Password of CockroachDB user provided", true, true);
+        addOption("u", "user", "Username of CockroachDB user", true, true);
+        addOption("f", "fileName", "Name of transaction query file", true, false);
         addOption("l", "logFileName", "Name of log file", true, false);
     }
 
