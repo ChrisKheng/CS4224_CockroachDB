@@ -70,59 +70,60 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public QueryResultToEntityMapper provideQueryResultToEntityMapper(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new QueryResultToEntityMapper(queryRunner, objectMapper);
+    public DbQueryHelper provideQueryResultToEntityMapper(ObjectMapper objectMapper, QueryRunner queryRunner) {
+        return new DbQueryHelper(queryRunner, objectMapper);
     }
 
     @Provides
     @Inject
-    public CustomerDao provideCustomerDao(QueryResultToEntityMapper queryResultToEntityMapper) {
+    public CustomerDao provideCustomerDao(DbQueryHelper queryResultToEntityMapper) {
         return new CustomerDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public DistrictDao provideDistrictDao(QueryResultToEntityMapper queryResultToEntityMapper) {
+    public DistrictDao provideDistrictDao(DbQueryHelper queryResultToEntityMapper) {
         return new DistrictDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public ItemDao provideItemDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
+    public ItemDao provideItemDao(DbQueryHelper queryResultToEntityMapper, ObjectMapper objectMapper,
                                   QueryRunner queryRunner) {
         return new ItemDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
     }
 
     @Provides
     @Inject
-    public OrderByItemDao provideOrderByItemDao(QueryResultToEntityMapper queryResultToEntityMapper) {
+    public OrderByItemDao provideOrderByItemDao(DbQueryHelper queryResultToEntityMapper) {
         return new OrderByItemDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public OrderDao provideOrderDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
+    public OrderDao provideOrderDao(DbQueryHelper queryResultToEntityMapper, ObjectMapper objectMapper,
                                     QueryRunner queryRunner) {
         return new OrderDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
     }
 
     @Provides
     @Inject
-    public OrderLineDao provideOrderLineDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper, QueryRunner queryRunner) {
+    public OrderLineDao provideOrderLineDao(DbQueryHelper queryResultToEntityMapper, ObjectMapper objectMapper, QueryRunner queryRunner) {
         return new OrderLineDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
     }
 
     @Provides
     @Inject
-    public WarehouseDao provideWarehouseDao(QueryResultToEntityMapper queryResultToEntityMapper, QueryRunner queryRunner) {
+    public WarehouseDao provideWarehouseDao(DbQueryHelper queryResultToEntityMapper, QueryRunner queryRunner) {
         return new WarehouseDao(queryResultToEntityMapper, queryRunner, schema);
     }
 
     @Provides
     @Inject
     public PaymentTransaction providePaymentTransaction(WarehouseDao warehouseDao, DistrictDao districtDao,
+                                                        DbQueryHelper queryResultToEntityMapper,
                                                         CustomerDao customerDao) {
-        return new PaymentTransaction(warehouseDao, districtDao, customerDao);
+        return new PaymentTransaction(warehouseDao, districtDao, customerDao, queryResultToEntityMapper);
     }
 
     @Provides
@@ -139,8 +140,9 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public OrderStatusTransaction provideOrderStatusTransaction() {
-        return new OrderStatusTransaction();
+    public OrderStatusTransaction provideOrderStatusTransaction(WarehouseDao warehouseDao, DistrictDao districtDao,
+                                                                CustomerDao customerDao) {
+        return new OrderStatusTransaction(warehouseDao, districtDao, customerDao);
     }
 
     @Provides

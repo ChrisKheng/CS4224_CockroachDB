@@ -1,9 +1,8 @@
 package cs4224.transactions;
 
-import javax.sql.DataSource;
-import cs4224.dao.OrderDao;
-import cs4224.entities.Customer;
-import cs4224.entities.Order;
+import cs4224.dao.CustomerDao;
+import cs4224.dao.DistrictDao;
+import cs4224.dao.WarehouseDao;
 
 public class OrderStatusTransaction extends BaseTransaction {
 
@@ -29,5 +28,10 @@ public class OrderStatusTransaction extends BaseTransaction {
          2) Query order table for customer's last order by filtering to latest order for O_ID,O_ENTRY_ID,O_CARRIER_ID
          3) Query the items in the customer last order. This is from order_line dao?. Retrieve OL_I_ID,OL_SUPPLY_W_ID,OL_QUANTITIY,OL_AMOUNT, OL_DELIVERY_D
          */
+    }
+
+    @Override
+    public String getType() {
+        return "Order Status";
     }
 }

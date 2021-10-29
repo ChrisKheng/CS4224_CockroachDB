@@ -11,12 +11,12 @@ import java.util.HashSet;
 import java.util.List;
 
 public class OrderLineDao {
-    private final QueryResultToEntityMapper queryResultToEntityMapper;
+    private final DbQueryHelper queryResultToEntityMapper;
     private final ObjectMapper objectMapper;
     private final QueryRunner queryRunner;
     private final String schema;
 
-    public OrderLineDao(final QueryResultToEntityMapper queryResultToEntityMapper, final ObjectMapper objectMapper,
+    public OrderLineDao(final DbQueryHelper queryResultToEntityMapper, final ObjectMapper objectMapper,
                         final QueryRunner queryRunner, final String schema) {
         this.queryResultToEntityMapper = queryResultToEntityMapper;
         this.objectMapper = objectMapper;

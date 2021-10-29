@@ -10,12 +10,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class OrderDao {
-    private final QueryResultToEntityMapper queryResultToEntityMapper;
+    private final DbQueryHelper queryResultToEntityMapper;
     private final ObjectMapper objectMapper;
     private final QueryRunner queryRunner;
     private final String schema;
 
-    public OrderDao(final QueryResultToEntityMapper queryResultToEntityMapper, final ObjectMapper objectMapper,
+    public OrderDao(final DbQueryHelper queryResultToEntityMapper, final ObjectMapper objectMapper,
                     final QueryRunner queryRunner, final String schema) {
         this.queryResultToEntityMapper = queryResultToEntityMapper;
         this.objectMapper = objectMapper;
