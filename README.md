@@ -50,6 +50,7 @@ does not support `IMPORT` statement on tables on which secondary indices have be
 
 
 ## Compilation of Client Program
+The following compilation has been tested on macOS.
 1) Install the following software on your local machine:
 * Gradle (version 7.2)
 * Java (version 11.0.12)
