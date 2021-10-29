@@ -81,6 +81,14 @@ public class Customer {
     @JsonProperty("c_data")
     private String miscData;
 
+    // This is necessary for the join operation to succeed
+    @JsonProperty("w_name")
+    private String warehouseName;
+
+    // This is necessary for the join operation to succeed
+    @JsonProperty("d_name")
+    private String districtName;
+
     public String toSpecifier() {
         return String.format("(%d, %d, %d)", warehouseId, districtId, id);
     }
@@ -97,5 +105,4 @@ public class Customer {
         return String.format(" Phone: %s \n Since: %s \n Credit: %s \n Credit Limit:%f \n Discount: %f \n Balance: %f",
                 phone, entryCreateDateTime, creditStatus, creditLimit, discountRate, balance);
     }
-
 }

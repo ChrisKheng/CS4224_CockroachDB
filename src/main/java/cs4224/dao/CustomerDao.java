@@ -34,6 +34,18 @@ public class CustomerDao {
         return customers.get(0);
     }
 
+    public List<Customer> getTopBalance() throws SQLException {
+        final String query = String.format(
+                "SELECT C_FIRST, C_MIDDLE, C_LAST, C_BALANCE, W_NAME, D_NAME " +
+                "FROM wholesale.warehouse AS w, wholesale.district AS d, " +
+                        "(SELECT C_FIRST, C_MIDDLE, C_LAST, C_BALANCE, C_W_ID, C_D_ID " +
+                        "FROM wholesale.customer " +
+                        "ORDER BY C_BALANCE DESC " +
+                        "LIMIT 10) AS c " +
+                "WHERE w.W_ID = c.C_W_ID AND d.D_W_ID = c.C_W_ID AND d.D_ID = c.C_D_ID");
+        return dbQueryHelper.getQueryResult(query, Customer.class);
+    }
+
     public Customer getState() {
         try {
             final String query = String.format("SELECT sum(C_BALANCE) as C_BALANCE, sum(C_YTD_PAYMENT) as C_YTD_PAYMENT, " +

@@ -169,8 +169,8 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public TopBalanceTransaction provideTopBalanceTransaction() {
-        return new TopBalanceTransaction();
+    public TopBalanceTransaction provideTopBalanceTransaction(CustomerDao customerDao) {
+        return new TopBalanceTransaction(customerDao);
     }
 
     @Provides
