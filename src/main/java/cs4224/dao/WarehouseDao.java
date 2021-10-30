@@ -1,7 +1,6 @@
 package cs4224.dao;
 
 import cs4224.entities.Warehouse;
-import org.apache.commons.dbutils.QueryRunner;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -11,13 +10,10 @@ import java.util.List;
 
 public class WarehouseDao {
     private final DbQueryHelper queryResultToEntityMapper;
-    private final QueryRunner queryRunner;
     private final String schema;
 
-    public WarehouseDao(final DbQueryHelper queryResultToEntityMapper, final QueryRunner queryRunner,
-                        final String schema) {
+    public WarehouseDao(final DbQueryHelper queryResultToEntityMapper, final String schema) {
         this.queryResultToEntityMapper = queryResultToEntityMapper;
-        this.queryRunner = queryRunner;
         this.schema = schema;
     }
 
@@ -31,6 +27,16 @@ public class WarehouseDao {
         return warehouses.get(0);
     }
 
+    public List<Warehouse> getAllWarehouseIDs() {
+        try {
+            final String query = String.format("SELECT W_ID FROM %s.WAREHOUSE", schema);
+            return queryResultToEntityMapper.getQueryResult(query, Warehouse.class);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
     public Warehouse getState() {
         try {
             final String query = String.format("SELECT sum(W_YTD) as W_YTD FROM %s.WAREHOUSE", schema);
@@ -39,16 +45,6 @@ public class WarehouseDao {
         } catch (SQLException ex) {
             ex.printStackTrace();
             return new Warehouse();
-        }
-    }
-
-    public List<Warehouse> getAllWarehouseIDs() {
-        try {
-            final String query = String.format("SELECT W_ID FROM %s.WAREHOUSE", schema);
-            return queryResultToEntityMapper.getQueryResult(query, Warehouse.class);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            return new ArrayList<>();
         }
     }
 }

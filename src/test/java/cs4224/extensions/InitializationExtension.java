@@ -71,7 +71,7 @@ public class InitializationExtension implements BeforeAllCallback, ExtensionCont
         ObjectMapper mapper = getObjectMapper();
         queryResultToEntityMapper = new DbQueryHelper(queryRunner, mapper);
         orderDao = getOrderDao(queryResultToEntityMapper, mapper, queryRunner);
-        orderLineDao = getOrderLineDao(queryResultToEntityMapper, mapper, queryRunner);
+        orderLineDao = getOrderLineDao(queryResultToEntityMapper);
         orderByItemDao = getOrderByItemDao(queryResultToEntityMapper);
     }
 
@@ -104,12 +104,11 @@ public class InitializationExtension implements BeforeAllCallback, ExtensionCont
 
     private OrderDao getOrderDao(DbQueryHelper queryResultToEntityMapper, ObjectMapper objectMapper,
                                  QueryRunner queryRunner) {
-        return new OrderDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
+        return new OrderDao(queryResultToEntityMapper, schema);
     }
 
-    private OrderLineDao getOrderLineDao(DbQueryHelper queryResultToEntityMapper, ObjectMapper objectMapper,
-                                         QueryRunner queryRunner) {
-        return new OrderLineDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
+    private OrderLineDao getOrderLineDao(DbQueryHelper queryResultToEntityMapper) {
+        return new OrderLineDao(queryResultToEntityMapper, schema);
     }
 
     @Override

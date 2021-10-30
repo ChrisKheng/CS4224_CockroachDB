@@ -10,10 +10,10 @@ import java.util.HashSet;
  * This class maps a column to a hash set.
  * Reference of how to use JDBC ResultSet: https://docs.oracle.com/javase/tutorial/jdbc/basics/retrieving.html
  */
-public class HashSetHandler<T> implements ResultSetHandler<HashSet> {
+public class ColumnHashSetHandler<T> implements ResultSetHandler<HashSet<T>> {
     private final String columnName;
 
-    public HashSetHandler(String columnName) {
+    public ColumnHashSetHandler(String columnName) {
         this.columnName = columnName;
     }
 

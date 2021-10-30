@@ -8,5 +8,5 @@ public final class Constants {
     public final static String ORDER_LINE_TABLE = "ORDER_LINE";
     public final static String ITEM_TABLE = "ITEM";
     public final static String ORDER_BY_ITEM_TABLE = "ORDER_BY_ITEM";
-    public static int CASSANDRA_PORT = 9042;
+    public static int COCKROACHDB_PORT = 26257;
 }

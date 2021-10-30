@@ -15,6 +15,9 @@
 data
 lib
 
+# Certificate
+certs/
+
 build/
 .gradle/
 

@@ -93,7 +93,7 @@ public class PopularItemTransaction extends BaseTransaction {
     private List<OrderLine> getOrderLine(final long warehouseId, final long districtId, final long orderId,
                                          final BigDecimal max_quantity) {
         try {
-            return orderLineDao.getOLItemId(warehouseId, districtId, orderId, max_quantity);
+            return orderLineDao.getOLItemIds(warehouseId, districtId, orderId, max_quantity);
         } catch (SQLException throwables) {
             throw new RuntimeException("Error while getting order line");
         }
