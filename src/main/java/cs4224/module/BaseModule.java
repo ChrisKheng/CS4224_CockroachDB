@@ -162,9 +162,8 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public RelatedCustomerTransaction provideRelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao,
-                                                                        OrderByItemDao orderByItemDao) {
-        return new RelatedCustomerTransaction(orderDao, orderLineDao, orderByItemDao);
+    public RelatedCustomerTransaction provideRelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao) {
+        return new RelatedCustomerTransaction(orderDao, orderLineDao);
     }
 
     @Provides
