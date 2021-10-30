@@ -134,12 +134,3 @@ CREATE TABLE wholesale.stock (
 	    S_DIST_09, S_DIST_10, S_DATA),
 	FAMILY f2 (S_QUANTITY, S_YTD, S_ORDER_CNT, S_REMOTE_CNT)
 );
-
-DROP TABLE IF EXISTS wholesale.order_by_item;
-CREATE TABLE wholesale.order_by_item (
-    I_ID INT,
-    O_W_ID INT,
-    O_D_ID INT,
-    O_ID INT,
-    PRIMARY KEY (I_ID, O_W_ID, O_D_ID, O_ID)
-);
