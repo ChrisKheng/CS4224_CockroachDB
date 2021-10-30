@@ -44,4 +44,12 @@ public class OrderDao {
         return queryResultToEntityMapper.getQueryResult(query, Order.class, warehouseId, districtId,
                 greaterThanId, lessThanId);
     }
+
+    //RS for order status
+    public List<Order> getCustomerLastOrder(Long warehouseId, Long districtId, Long customerId) throws SQLException
+    {
+    final String query = String.format("SELECT O_ID, O_ENTRY_ID, O_CARRIER_ID FROM %s.orders WHERE O_W_ID = ? AND O_D_ID = ? " +
+            "AND O_C_ID = ? ORDER BY O_ID DESC LIMIT 1 ALLOW FILTERING", schema);
+    return queryResultToEntityMapper.getQueryResult(query, Order.class, warehouseId, districtId, customerId);
+    }
 }

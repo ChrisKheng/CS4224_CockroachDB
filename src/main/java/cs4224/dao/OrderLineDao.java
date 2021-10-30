@@ -45,4 +45,15 @@ public class OrderLineDao {
         return queryResultToEntityMapper.getQueryResult(query, OrderLine.class, warehouseId, districtId,
                 orderId, orderLineQuantity);
     }
+
+    //RS for order status
+    public HashSet<Long> getItemsFromLastOrder(Long warehouseId, Long districtId, Long orderNumber) throws Exception {
+        HashSetHandler<Long> handler = new HashSetHandler<>("O_ID");
+        String query = String.format("SELECT OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DELIVERY_ID " +
+                "FROM %s.order_line WHERE OL_W_ID = ? AND OL_D_ID = ? AND OL_O_ID = ?",
+                schema);
+        return queryRunner.query(query, handler, warehouseId, districtId, orderNumber);
+    }
+
+
 }

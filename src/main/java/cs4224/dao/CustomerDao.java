@@ -27,9 +27,27 @@ public class CustomerDao {
 
     public Customer getNameById(long warehouseId, long districtId, long customerId) throws SQLException {
         final String query = String.format("SELECT C_FIRST, C_MIDDLE, C_LAST FROM %s.customer WHERE C_W_ID = ? AND C_D_ID = ? " +
-                "AND C_ID = ?",  schema);
+                "AND C_ID = ?", schema);
         final List<Customer> customers = queryResultToEntityMapper.getQueryResult(query, Customer.class, warehouseId,
                 districtId, customerId);
         return customers.get(0);
     }
+
+    //RS fr order status
+    public Customer getCustInfo(long warehouseId, long districtId, long customerId) throws SQLException
+    {
+        final String getCustInfoQuery = String.format("SELECT C_FIRST, C_MIDDLE, C_LAST, C_BALANCE FROM %s.customer WHERE C_W_ID = ? " +
+                "AND C_D_ID = ? AND C_ID = ?", schema);
+        final List<Customer> customers = queryResultToEntityMapper.getQueryResult(getCustInfoQuery, Customer.class,
+                warehouseId, districtId, customerId);
+        return customers.get(0);
+
+
+    }
+
 }
+
+
+
+
+
