@@ -10,3 +10,6 @@ CREATE INDEX order_by_customer ON wholesale.orders (O_C_ID);
 
 DROP INDEX IF EXISTS wholesale.order_line@order_by_item CASCADE;
 CREATE INDEX order_by_item ON wholesale.order_line (OL_I_ID);
+
+DROP INDEX IF EXISTS wholesale.customer@customer_balance CASCADE;
+CREATE INDEX customer_balance ON wholesale.customer (C_BALANCE DESC) STORING (C_FIRST, C_MIDDLE, C_LAST);

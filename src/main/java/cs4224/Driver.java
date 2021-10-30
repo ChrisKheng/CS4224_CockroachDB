@@ -128,8 +128,8 @@ public class Driver {
         totalLapse = TimeUnit.SECONDS.convert(end - start, TimeUnit.NANOSECONDS);
 
         System.err.printf("Total skipped transactions: %d\n", failedTransactions.size());
-        String failedTransactionsString = String.join(",",
-                failedTransactions.stream().map(l -> l.toString()).collect(Collectors.toList()));
+        String failedTransactionsString =
+                failedTransactions.stream().map(Object::toString).collect(Collectors.joining(","));
         System.err.printf("Skipped transactions: %s\n", failedTransactionsString);
 
         Statistics.computeTimeStatistics(timeRecord, totalLapse);

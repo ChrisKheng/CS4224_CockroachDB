@@ -1,23 +1,16 @@
 package cs4224.dao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cs4224.entities.Item;
-import org.apache.commons.dbutils.QueryRunner;
 
 import java.sql.SQLException;
 import java.util.List;
 
 public class ItemDao {
     private final DbQueryHelper queryResultToEntityMapper;
-    private final ObjectMapper objectMapper;
-    private final QueryRunner queryRunner;
     private final String schema;
 
-    public ItemDao(final DbQueryHelper queryResultToEntityMapper, final ObjectMapper objectMapper,
-                   final QueryRunner queryRunner, final String schema) {
+    public ItemDao(final DbQueryHelper queryResultToEntityMapper, final String schema) {
         this.queryResultToEntityMapper = queryResultToEntityMapper;
-        this.objectMapper = objectMapper;
-        this.queryRunner = queryRunner;
         this.schema = schema;
     }
 
