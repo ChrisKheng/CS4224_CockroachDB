@@ -61,10 +61,12 @@ public class PaymentTransaction extends BaseTransaction {
                     customerId));
             connection.commit();
             connection.setAutoCommit(true);
+            connection.close();
         } catch (Exception ex) {
             LOGGER.error("Rolling back transaction due to error: ", ex);
             connection.rollback();
             connection.setAutoCommit(true);
+            connection.close();
             throw ex;
         }
         return result;
