@@ -1,26 +1,33 @@
 package cs4224.transactions;
 
 
-import cs4224.ParallelExecutor;
 import cs4224.dao.CustomerDao;
 import cs4224.dao.DistrictDao;
+import cs4224.dao.DbQueryHelper;
 import cs4224.dao.WarehouseDao;
 import cs4224.entities.Customer;
 import cs4224.entities.District;
 import cs4224.entities.Warehouse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentTransaction extends BaseTransaction {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PopularItemTransaction.class);
+    private final DbQueryHelper queryResultToEntityMapper;
     private final WarehouseDao warehouseDao;
     private final DistrictDao districtDao;
     private final CustomerDao customerDao;
 
-    public PaymentTransaction(WarehouseDao warehouseDao, DistrictDao districtDao,
-                              CustomerDao customerDao) {
+    public PaymentTransaction(WarehouseDao warehouseDao, DistrictDao districtDao, CustomerDao customerDao,
+                              DbQueryHelper queryResultToEntityMapper) {
         this.warehouseDao = warehouseDao;
         this.districtDao = districtDao;
         this.customerDao = customerDao;
+        this.queryResultToEntityMapper = queryResultToEntityMapper;
     }
 
     @Override
@@ -42,13 +49,27 @@ public class PaymentTransaction extends BaseTransaction {
     }
 
     private List<Object> updateEntities(final long customerWarehouseId, final long customerDistrictId,
-                                        final long customerId, final double paymentAmount) {
-        final ParallelExecutor getEntitiesExecutor = new ParallelExecutor()
-                .addTask(() -> warehouseDao.updateAndGetById(paymentAmount, customerWarehouseId))
-                .addTask(() -> districtDao.updateAndGetById(paymentAmount, customerWarehouseId, customerDistrictId))
-                .addTask(() -> customerDao.updateAndGetById(paymentAmount, customerWarehouseId, customerDistrictId,
-                        customerId));
-        return getEntitiesExecutor.execute();
+                                        final long customerId, final double paymentAmount) throws Exception {
+        final Connection connection = queryResultToEntityMapper.getConnection();
+        connection.setAutoCommit(false);
+        final List<Object> result = new ArrayList<>();
+        try {
+            result.add(warehouseDao.updateAndGetById(connection, paymentAmount, customerWarehouseId));
+            result.add(districtDao.updateAndGetById(connection, paymentAmount, customerWarehouseId,
+                    customerDistrictId));
+            result.add(customerDao.updateAndGetById(connection, paymentAmount, customerWarehouseId, customerDistrictId,
+                    customerId));
+            connection.commit();
+            connection.setAutoCommit(true);
+            connection.close();
+        } catch (Exception ex) {
+            LOGGER.error("Rolling back transaction due to error: ", ex);
+            connection.rollback();
+            connection.setAutoCommit(true);
+            connection.close();
+            throw ex;
+        }
+        return result;
     }
 
     private void printOutput(final Warehouse warehouse, final District district, final Customer customer,

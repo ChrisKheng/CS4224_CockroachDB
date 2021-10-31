@@ -11,6 +11,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import cs4224.dao.*;
 import cs4224.transactions.*;
+import cs4224.utils.Constants;
 import org.apache.commons.dbutils.QueryRunner;
 
 import javax.sql.DataSource;
@@ -26,7 +27,7 @@ public class BaseModule extends AbstractModule {
     public BaseModule(String database, String ip, int port, String password, String user) {
         this.database = database;
         this.ip = ip.equals("") ? "localhost" : ip;
-        this.port = port == -1 ? 26257 : port;
+        this.port = port == -1 ? Constants.COCKROACHDB_PORT : port;
         this.password = password;
         this.user = user;
         this.schema = "wholesale";
@@ -70,59 +71,66 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public QueryResultToEntityMapper provideQueryResultToEntityMapper(ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new QueryResultToEntityMapper(queryRunner, objectMapper);
+    public DbQueryHelper provideQueryResultToEntityMapper(ObjectMapper objectMapper, QueryRunner queryRunner) {
+        return new DbQueryHelper(queryRunner, objectMapper);
     }
 
     @Provides
     @Inject
-    public CustomerDao provideCustomerDao(QueryResultToEntityMapper queryResultToEntityMapper) {
+    public CustomerDao provideCustomerDao(DbQueryHelper queryResultToEntityMapper) {
         return new CustomerDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public DistrictDao provideDistrictDao(QueryResultToEntityMapper queryResultToEntityMapper) {
+    public DistrictDao provideDistrictDao(DbQueryHelper queryResultToEntityMapper) {
         return new DistrictDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public ItemDao provideItemDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
+    public ItemDao provideItemDao(DbQueryHelper queryResultToEntityMapper, ObjectMapper objectMapper,
                                   QueryRunner queryRunner) {
-        return new ItemDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
+        return new ItemDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public OrderByItemDao provideOrderByItemDao(QueryResultToEntityMapper queryResultToEntityMapper) {
+    public OrderByItemDao provideOrderByItemDao(DbQueryHelper queryResultToEntityMapper) {
         return new OrderByItemDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public OrderDao provideOrderDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
+    public OrderDao provideOrderDao(DbQueryHelper queryResultToEntityMapper, ObjectMapper objectMapper,
                                     QueryRunner queryRunner) {
-        return new OrderDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
+        return new OrderDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public OrderLineDao provideOrderLineDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper, QueryRunner queryRunner) {
-        return new OrderLineDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
+    public OrderLineDao provideOrderLineDao(DbQueryHelper queryResultToEntityMapper, ObjectMapper objectMapper, QueryRunner queryRunner) {
+        return new OrderLineDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
-    public WarehouseDao provideWarehouseDao(QueryResultToEntityMapper queryResultToEntityMapper, QueryRunner queryRunner) {
-        return new WarehouseDao(queryResultToEntityMapper, queryRunner, schema);
+    public WarehouseDao provideWarehouseDao(DbQueryHelper queryResultToEntityMapper, QueryRunner queryRunner) {
+        return new WarehouseDao(queryResultToEntityMapper, schema);
+    }
+
+    @Provides
+    @Inject
+    public StockDao provideStockDao(DbQueryHelper queryResultToEntityMapper) {
+        return new StockDao(queryResultToEntityMapper, schema);
     }
 
     @Provides
     @Inject
     public PaymentTransaction providePaymentTransaction(WarehouseDao warehouseDao, DistrictDao districtDao,
+                                                        DbQueryHelper queryResultToEntityMapper,
                                                         CustomerDao customerDao) {
-        return new PaymentTransaction(warehouseDao, districtDao, customerDao);
+        return new PaymentTransaction(warehouseDao, districtDao, customerDao, queryResultToEntityMapper);
     }
 
     @Provides
@@ -139,8 +147,9 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public OrderStatusTransaction provideOrderStatusTransaction() {
-        return new OrderStatusTransaction();
+    public OrderStatusTransaction provideOrderStatusTransaction(CustomerDao customerDao, OrderDao orderDao,
+                                                                OrderLineDao orderLineDao) {
+        return new OrderStatusTransaction(customerDao, orderDao, orderLineDao);
     }
 
     @Provides
@@ -153,21 +162,21 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public RelatedCustomerTransaction provideRelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao,
-                                                                        OrderByItemDao orderByItemDao) {
-        return new RelatedCustomerTransaction(orderDao, orderLineDao, orderByItemDao);
+    public RelatedCustomerTransaction provideRelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao) {
+        return new RelatedCustomerTransaction(orderDao, orderLineDao);
     }
 
     @Provides
     @Inject
-    public TopBalanceTransaction provideTopBalanceTransaction() {
-        return new TopBalanceTransaction();
+    public TopBalanceTransaction provideTopBalanceTransaction(CustomerDao customerDao) {
+        return new TopBalanceTransaction(customerDao);
     }
 
     @Provides
     @Inject
-    public StockLevelTransaction provideStockLevelTransaction() {
-        return new StockLevelTransaction();
+    public StockLevelTransaction provideStockLevelTransaction(DistrictDao districtDao, OrderLineDao orderLineDao,
+                                                              StockDao stockDao) {
+        return new StockLevelTransaction(districtDao, orderLineDao, stockDao);
     }
 
 }

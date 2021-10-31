@@ -1,23 +1,23 @@
 package cs4224.transactions;
 
-import cs4224.dao.OrderByItemDao;
 import cs4224.dao.OrderDao;
 import cs4224.dao.OrderLineDao;
 import cs4224.entities.Customer;
 import cs4224.entities.Order;
 
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RelatedCustomerTransaction extends BaseTransaction {
     private final OrderDao orderDao;
     private final OrderLineDao orderLineDao;
-    private final OrderByItemDao orderByItemDao;
 
-    public RelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao, OrderByItemDao orderByItemDao) {
+    public RelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao) {
         this.orderDao = orderDao;
         this.orderLineDao = orderLineDao;
-        this.orderByItemDao = orderByItemDao;
     }
 
     @Override
@@ -47,27 +47,33 @@ public class RelatedCustomerTransaction extends BaseTransaction {
     }
 
     public HashSet<Customer> executeAndGetResult(long customerWarehouseId, long customerDistrictId, long customerId)
-            throws Exception {
+            throws SQLException {
         List<Long> orderIds = orderDao.getOrderIdsOfCustomer(customerWarehouseId, customerDistrictId, customerId);
-        HashSet<Order> relatedOrders = new HashSet<>();
-        for (long orderId : orderIds) {
-            HashSet<Order> result = getRelatedOrders(Order.builder()
-                    .warehouseId(customerWarehouseId)
-                    .districtId(customerDistrictId)
-                    .id(orderId)
-                    .build());
-            relatedOrders.addAll(result);
-        }
+        Set<Order> relatedOrders = Collections.synchronizedSet(new HashSet<>());
+        orderIds.parallelStream().forEach(oid -> {
+            try {
+                Order order = Order.builder()
+                        .warehouseId(customerWarehouseId)
+                        .districtId(customerDistrictId)
+                        .id(oid)
+                        .build();
+                HashSet<Order> result = getRelatedOrders(order);
+                relatedOrders.addAll(result);
+            } catch (SQLException e) {
+              throw new RuntimeException(e);
+            }
+        });
+
         return getCustomersOfOrders(relatedOrders);
     }
 
-    public HashSet<Order> getRelatedOrders(Order order) throws Exception {
+    public HashSet<Order> getRelatedOrders(Order order) throws SQLException {
         HashSet<Long> itemIdsSet = orderLineDao.getItemIdsOfOrder(order.getWarehouseId(), order.getDistrictId(),
                 order.getId());
         HashSet<Order> result = new HashSet<>();
 
         for (long itemId : itemIdsSet) {
-            List<Order> relatedOrders = orderByItemDao.getOrdersOfItem(itemId);
+            List<Order> relatedOrders = orderLineDao.getOrdersOfItem(itemId);
 
             for (Order relatedOrder : relatedOrders) {
                 boolean isSameOrder = relatedOrder.isEqualOrderSpecifier(order);
@@ -93,7 +99,7 @@ public class RelatedCustomerTransaction extends BaseTransaction {
         return result;
     }
 
-    public HashSet<Customer> getCustomersOfOrders(HashSet<Order> orders) throws Exception {
+    public HashSet<Customer> getCustomersOfOrders(Set<Order> orders) throws SQLException {
         HashSet<Customer> result = new HashSet<>();
         for (Order order : orders) {
             long customerId = orderDao.getCustomerIdOfOrder(order.getWarehouseId(), order.getDistrictId(),

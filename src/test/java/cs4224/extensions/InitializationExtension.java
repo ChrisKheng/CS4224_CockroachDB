@@ -4,10 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import cs4224.dao.OrderByItemDao;
 import cs4224.dao.OrderDao;
 import cs4224.dao.OrderLineDao;
-import cs4224.dao.QueryResultToEntityMapper;
+import cs4224.dao.DbQueryHelper;
 import org.apache.commons.dbutils.QueryRunner;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -44,11 +43,10 @@ import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 public class InitializationExtension implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
     private static boolean started = false;
     private DataSource dataSource;
-    public static QueryResultToEntityMapper queryResultToEntityMapper;
+    public static DbQueryHelper queryResultToEntityMapper;
     public static QueryRunner queryRunner;
     public static OrderDao orderDao;
     public static OrderLineDao orderLineDao;
-    public static OrderByItemDao orderByItemDao;
     public static final String username = "cs4224o";
     public static final String schema = "wholesale";
     private static final String database = "wholesaledb_test";
@@ -69,10 +67,9 @@ public class InitializationExtension implements BeforeAllCallback, ExtensionCont
         dataSource = getDataSource();
         queryRunner = getQueryRunner(dataSource);
         ObjectMapper mapper = getObjectMapper();
-        queryResultToEntityMapper = new QueryResultToEntityMapper(queryRunner, mapper);
+        queryResultToEntityMapper = new DbQueryHelper(queryRunner, mapper);
         orderDao = getOrderDao(queryResultToEntityMapper, mapper, queryRunner);
-        orderLineDao = getOrderLineDao(queryResultToEntityMapper, mapper, queryRunner);
-        orderByItemDao = getOrderByItemDao(queryResultToEntityMapper);
+        orderLineDao = getOrderLineDao(queryResultToEntityMapper);
     }
 
     private DataSource getDataSource() throws Exception {
@@ -98,18 +95,13 @@ public class InitializationExtension implements BeforeAllCallback, ExtensionCont
         return objectMapper;
     }
 
-    private OrderByItemDao getOrderByItemDao(QueryResultToEntityMapper queryResultToEntityMapper) {
-        return new OrderByItemDao(queryResultToEntityMapper, schema);
-    }
-
-    private OrderDao getOrderDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
+    private OrderDao getOrderDao(DbQueryHelper queryResultToEntityMapper, ObjectMapper objectMapper,
                                  QueryRunner queryRunner) {
-        return new OrderDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
+        return new OrderDao(queryResultToEntityMapper, schema);
     }
 
-    private OrderLineDao getOrderLineDao(QueryResultToEntityMapper queryResultToEntityMapper, ObjectMapper objectMapper,
-                                         QueryRunner queryRunner) {
-        return new OrderLineDao(queryResultToEntityMapper, objectMapper, queryRunner, schema);
+    private OrderLineDao getOrderLineDao(DbQueryHelper queryResultToEntityMapper) {
+        return new OrderLineDao(queryResultToEntityMapper, schema);
     }
 
     @Override

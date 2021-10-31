@@ -26,37 +26,6 @@ INSERT INTO wholesale.orders(O_W_ID, O_D_ID, O_ID, O_C_ID, O_CARRIER_ID, O_OL_CN
 (1,7,1,6,7,2,1,'2021-08-26 17:13:34.421'),
 (9,9,1,1,7,2,1,'2021-08-26 17:13:34.421');
 
-INSERT INTO wholesale.order_by_item(I_ID, O_W_ID, O_D_ID, O_ID) VALUES
-(1,1,1,1),
-(2,1,1,1),
-(3,1,1,1),
-(1,2,2,1),
-(2,2,2,1),
-(7,2,2,1),
-(4,1,1,2),
-(5,1,1,2),
-(6,1,1,2),
-(5,2,2,2),
-(6,2,2,2),
-(8,1,1,3),
-(9,1,1,3),
-(8,5,3,1),
-(9,5,3,1),
-(10,1,1,4),
-(11,1,1,4),
-(10,7,5,1),
-(12,7,5,1),
-(13,1,1,5),
-(14,1,1,5),
-(15,8,6,1),
-(16,8,6,1),
-(17,1,1,6),
-(18,1,1,6),
-(17,1,7,1),
-(18,1,7,1),
-(19,1,1,7),
-(19,9,9,1);
-
 INSERT INTO wholesale.order_line(OL_W_ID, OL_D_ID, OL_O_ID, OL_NUMBER, OL_I_ID, OL_DELIVERY_D, OL_AMOUNT, OL_SUPPLY_W_ID, OL_QUANTITY,
     OL_DIST_INFO) VALUES
 (1,1,1,1,1,'2021-08-26 17:13:34.421',0.0,1,5,'bzdwrorrrvtfmbqvtueolfa'),

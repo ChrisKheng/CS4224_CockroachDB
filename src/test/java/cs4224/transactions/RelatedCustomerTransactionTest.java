@@ -32,8 +32,7 @@ public class RelatedCustomerTransactionTest {
     @Test
     public void testExecuteHasRelatedCustomer() throws Exception {
         RelatedCustomerTransaction transaction = new RelatedCustomerTransaction(InitializationExtension.orderDao,
-                InitializationExtension.orderLineDao,
-                InitializationExtension.orderByItemDao);
+                InitializationExtension.orderLineDao);
 
         HashSet<Customer> relatedCustomers = transaction.executeAndGetResult(1l, 1l, 1l);
         HashSet<Customer> expectedResult = new HashSet<>(Arrays.asList(
