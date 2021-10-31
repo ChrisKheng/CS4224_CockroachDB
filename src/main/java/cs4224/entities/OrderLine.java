@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Data
 @Accessors(chain = true)
@@ -24,4 +25,10 @@ public class OrderLine {
 
     @JsonProperty("ol_amount")
     private BigDecimal amount;
+
+    @JsonProperty("ol_supply_w_id")
+    private long supplyingWarehouseId;
+
+    @JsonProperty("ol_delivery_d")
+    private Instant deliveryDateTime;
 }
