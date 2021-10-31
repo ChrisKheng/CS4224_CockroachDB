@@ -2,12 +2,13 @@ package cs4224.transactions;
 
 import cs4224.dao.*;
 import cs4224.entities.Customer;
+import cs4224.entities.Item;
 import cs4224.entities.Order;
-import cs4224.entities.OrderLine;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -41,30 +42,23 @@ public class PopularItemTransaction extends BaseTransaction {
         final Map<Order, BigDecimal> orderQuantity = new ConcurrentHashMap<>(); // Order -> max_quantity
         final Map<Long, List<Long>> orderItems = new ConcurrentHashMap<>(); // OrderId -> items
         final Map<Long, Customer> customerMap = new ConcurrentHashMap<>(); // CustomerId -> CustomerName
+        final Map<Long, String> itemName = new ConcurrentHashMap<>(); // ItemId -> Item Name
+        final Map<Long, Long> itemNumOrders = new ConcurrentHashMap<>(); // Item -> Num of Orders
 
         orders.parallelStream().forEach(order -> {
             BigDecimal max_quantity = getOrderLineMaxQuantity(warehouseId, districtId, order);
-            List<Long> items = new ArrayList<>();
             if (max_quantity != null) {
-                final List<OrderLine> orderLineItem = getOrderLine(warehouseId, districtId, order.getId(), max_quantity);
-                items = orderLineItem.stream().map(OrderLine::getItemId).collect(Collectors.toList());
+                final List<Item> items = getMaxQtyOrderLineItems(warehouseId, districtId, order.getId(), max_quantity);
+                orderItems.put(order.getId(), items.stream().map(Item::getId).collect(Collectors.toList()));
+                items.forEach(item -> itemName.put(item.getId(), item.getName()));
             }
             max_quantity = max_quantity == null ? new BigDecimal(-1) : max_quantity;
             orderQuantity.put(order, max_quantity);
-            orderItems.put(order.getId(), items);
-                customerMap.put(order.getCustomerId(), getCustomerName(warehouseId, districtId, order.getCustomerId()));
+            customerMap.put(order.getCustomerId(), getCustomerName(warehouseId, districtId, order.getCustomerId()));
         });
-
-        final Set<Long> items = new HashSet<>(); // Set of all Items in last L orders
-        final Map<Long, Long> itemNumOrders = new ConcurrentHashMap<>(); // Item -> Num of Orders
-        final Map<Long, String> itemName = new ConcurrentHashMap<>(); // Item -> Item Name
 
         orderItems.forEach((order, oItems) ->
                 oItems.forEach(item -> itemNumOrders.put(item, itemNumOrders.getOrDefault(item, 0L)+1)));
-
-        orderItems.values().forEach(items::addAll);
-
-        items.parallelStream().forEach(item -> itemName.put(item, getItemName(item)));
 
         printOutput(warehouseId, districtId, L, orderQuantity, orderItems, customerMap, itemNumOrders, itemName);
     }
@@ -90,18 +84,10 @@ public class PopularItemTransaction extends BaseTransaction {
         }
     }
 
-    private List<OrderLine> getOrderLine(final long warehouseId, final long districtId, final long orderId,
-                                         final BigDecimal max_quantity) {
+    private List<Item> getMaxQtyOrderLineItems(final long warehouseId, final long districtId, final long orderId,
+                                               final BigDecimal max_quantity) {
         try {
-            return orderLineDao.getOLItemIds(warehouseId, districtId, orderId, max_quantity);
-        } catch (SQLException throwables) {
-            throw new RuntimeException("Error while getting order line");
-        }
-    }
-
-    private String getItemName(final long item) {
-        try {
-            return itemDao.getNameById(item).getName();
+            return itemDao.getMaxQtyOrderLineItems(warehouseId, districtId, orderId, max_quantity);
         } catch (SQLException throwables) {
             throw new RuntimeException("Error while getting item");
         }
