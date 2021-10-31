@@ -29,7 +29,18 @@ public class CustomerDao {
     public Customer getNameById(long warehouseId, long districtId, long customerId) throws SQLException {
         final String query = String.format("SELECT C_FIRST, C_MIDDLE, C_LAST FROM %s.customer WHERE C_W_ID = ? AND C_D_ID = ? " +
                 "AND C_ID = ?",  schema);
-        final List<Customer> customers = dbQueryHelper.getQueryResult(query, Customer.class, warehouseId,
+        final List<Customer> customers = dbQueryHelper.getQueryResult(query, Customer.class, warehouseId, districtId,
+                customerId);
+        return customers.get(0);
+    }
+
+    public Customer getCustomerInfoForOrderStatus(long warehouseId, long districtId, long customerId)
+            throws SQLException {
+        final String getCustomerInfoQuery = String.format(
+                "SELECT C_FIRST, C_MIDDLE, C_LAST, C_BALANCE " +
+                "FROM %s.customer " +
+                "WHERE C_W_ID = ? AND C_D_ID = ? AND C_ID = ?", schema);
+        final List<Customer> customers = dbQueryHelper.getQueryResult(getCustomerInfoQuery, Customer.class, warehouseId,
                 districtId, customerId);
         return customers.get(0);
     }

@@ -48,6 +48,16 @@ public class OrderLineDao {
                 orderId, orderLineQuantity);
     }
 
+    public List<OrderLine> getOrderLinesOfLastOrder(long warehouseId, long districtId, long orderId)
+            throws SQLException {
+        String query = String.format(
+                "SELECT OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DELIVERY_D " +
+                "FROM %s.order_line " +
+                "WHERE OL_W_ID = ? AND OL_D_ID = ? AND OL_O_ID = ?",
+                schema);
+        return dbQueryHelper.getQueryResult(query, OrderLine.class, warehouseId, districtId, orderId);
+    }
+
     public List<Long> getOLItemIds(long warehouseId, long districtId, long startOrderId, long endOrderId)
             throws SQLException {
         final ColumnListHandler<Long> handler = new ColumnListHandler<>("OL_I_ID");

@@ -147,9 +147,9 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public OrderStatusTransaction provideOrderStatusTransaction(WarehouseDao warehouseDao, DistrictDao districtDao,
-                                                                CustomerDao customerDao) {
-        return new OrderStatusTransaction(warehouseDao, districtDao, customerDao);
+    public OrderStatusTransaction provideOrderStatusTransaction(CustomerDao customerDao, OrderDao orderDao,
+                                                                OrderLineDao orderLineDao) {
+        return new OrderStatusTransaction(customerDao, orderDao, orderLineDao);
     }
 
     @Provides
