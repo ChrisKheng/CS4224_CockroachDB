@@ -3,6 +3,7 @@ package cs4224.dao;
 import cs4224.entities.OrderLine;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -38,6 +39,18 @@ public class OrderLineDao {
         final String query = String.format("SELECT DISTINCT OL_I_ID FROM %s.order_line WHERE OL_W_ID = ? " +
                 "AND OL_D_ID = ? AND OL_O_ID >= ? AND OL_O_ID <= ?", schema);
         return dbQueryHelper.getQueryRunner().query(query, handler, warehouseId, districtId, startOrderId, endOrderId);
+    }
+
+    public List<OrderLine> setOrderLineDeliveryDateTimeAndReturnAmount(Connection connection, long warehouseId,
+                                                                       long districtId, long orderId)
+            throws SQLException {
+        final String query = String.format(
+                "UPDATE %s.order_line\n" +
+                        "SET OL_DELIVERY_D = now()\n" +
+                        "WHERE (OL_W_ID, OL_D_ID, OL_O_ID) = (?, ?, ?)\n" +
+                        "RETURNING OL_AMOUNT"
+        , schema);
+        return dbQueryHelper.getQueryResult(connection, query, OrderLine.class, warehouseId, districtId, orderId);
     }
 
     public OrderLine getState(long warehouseId) {
