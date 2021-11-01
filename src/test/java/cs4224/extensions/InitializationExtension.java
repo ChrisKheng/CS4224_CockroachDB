@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import cs4224.dao.CustomerDao;
 import cs4224.dao.OrderDao;
 import cs4224.dao.OrderLineDao;
 import cs4224.dao.DbQueryHelper;
@@ -47,6 +48,7 @@ public class InitializationExtension implements BeforeAllCallback, ExtensionCont
     public static QueryRunner queryRunner;
     public static OrderDao orderDao;
     public static OrderLineDao orderLineDao;
+    public static CustomerDao customerDao;
     public static final String username = "cs4224o";
     public static final String schema = "wholesale";
     private static final String database = "wholesaledb_test";
@@ -70,6 +72,7 @@ public class InitializationExtension implements BeforeAllCallback, ExtensionCont
         queryResultToEntityMapper = new DbQueryHelper(queryRunner, mapper);
         orderDao = getOrderDao(queryResultToEntityMapper, mapper, queryRunner);
         orderLineDao = getOrderLineDao(queryResultToEntityMapper);
+        customerDao = getCustomerDao(queryResultToEntityMapper);
     }
 
     private DataSource getDataSource() throws Exception {
@@ -102,6 +105,10 @@ public class InitializationExtension implements BeforeAllCallback, ExtensionCont
 
     private OrderLineDao getOrderLineDao(DbQueryHelper queryResultToEntityMapper) {
         return new OrderLineDao(queryResultToEntityMapper, schema);
+    }
+
+    public CustomerDao getCustomerDao(DbQueryHelper queryResultToEntityMapper) {
+        return new CustomerDao(queryResultToEntityMapper, schema);
     }
 
     @Override
