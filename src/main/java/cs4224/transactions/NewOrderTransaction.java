@@ -79,15 +79,12 @@ public class NewOrderTransaction extends BaseTransaction {
         districtId = Integer.parseInt(parameters[3]);
         noOfItems = Integer.parseInt(parameters[4]);
 
-        System.out.printf("Running New Order Transaction with C_ID= %d, W_ID=%d, D_ID=%d, N=%d \n", customerId, warehouseId, districtId, noOfItems);
-        for (String line : dataLines) {
-            System.out.println(line);
-        }
         final Connection connection = queryResultToEntityMapper.getConnection();
         connection.setAutoCommit(false);
 
         List<NewOrderLine> newOrderLines = parseNewOrderLines(dataLines);
 
+        // output lines that will be collected but only printed if we manage to finish the commit
         String[] output = new String[noOfItems];
         try {
 
@@ -121,6 +118,7 @@ public class NewOrderTransaction extends BaseTransaction {
             BigDecimal discount = customer.getDiscountRate();
             BigDecimal warehouseTax = warehouseDao.getWarehouseTax(warehouseId).getTax();
 
+            // prepare statement by connection
             PreparedStatement p = connection.prepareStatement(orderLineDao.orderLineMultiRowsInsertTemplate());
 
             for (int i = 0; i < noOfItems; i++) {
@@ -139,6 +137,7 @@ public class NewOrderTransaction extends BaseTransaction {
                 double itemAmount = orderedQuantity.longValue() * itemPrice;
                 totalAmount += itemAmount;
 
+                // each item adds an insert to the operation
                 p.setLong(1, districtNextOrderId);
                 p.setInt(2, districtId);
                 p.setInt(3, warehouseId);
@@ -154,10 +153,12 @@ public class NewOrderTransaction extends BaseTransaction {
                         "ol_amount: %f, s_quantity: %d\n", itemId, itemName, supplyWarehouseId, orderedQuantity.longValue(), itemAmount, sQuant);
             }
 
+            // fire the multi-insert
             p.execute();
             // 6
             totalAmount = totalAmount * (1 + districtTax.doubleValue() + warehouseTax.doubleValue()) * (1 - discount.doubleValue());
 
+            // At this point we can print
             System.out.printf("Customer -> last name: %s, credit status: %s, discount: %f\n", lastName, credit, discount.doubleValue());
             System.out.printf("Warehouse tax: %f, district tax: %f\n", warehouseTax.doubleValue(), districtTax.doubleValue());
             System.out.printf("Order number: %d, entry date: %s\n", newOrder.getId(), ldt.toString());
