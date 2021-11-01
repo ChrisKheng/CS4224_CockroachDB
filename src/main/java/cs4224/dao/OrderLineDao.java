@@ -5,7 +5,6 @@ import cs4224.entities.OrderLine;
 import cs4224.handlers.ColumnHashSetHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
@@ -38,14 +37,6 @@ public class OrderLineDao {
                 "OL_D_ID = ? AND OL_O_ID = ?", schema);
         return dbQueryHelper.getQueryResult(query, OrderLine.class, warehouseId, districtId,
                 orderId).get(0);
-    }
-
-    public List<OrderLine> getOLItemIds(long warehouseId, long districtId, long orderId, BigDecimal orderLineQuantity)
-            throws SQLException {
-        final String query = String.format("SELECT OL_I_ID FROM %s.order_line WHERE OL_W_ID = ? AND OL_D_ID = ? " +
-                "AND OL_O_ID = ? AND OL_QUANTITY = ?", schema);
-        return dbQueryHelper.getQueryResult(query, OrderLine.class, warehouseId, districtId,
-                orderId, orderLineQuantity);
     }
 
     public List<OrderLine> getOrderLinesOfLastOrder(long warehouseId, long districtId, long orderId)

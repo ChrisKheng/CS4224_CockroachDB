@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Item {
 
+    @JsonProperty("i_id")
+    private long id;
+
     @JsonProperty("i_name")
     private String name;
 
