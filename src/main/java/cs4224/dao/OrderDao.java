@@ -1,8 +1,6 @@
 package cs4224.dao;
 
 import cs4224.entities.Order;
-import org.apache.commons.dbutils.handlers.ColumnListHandler;
-import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -14,20 +12,6 @@ public class OrderDao {
     public OrderDao(final DbQueryHelper dbQueryHelper, final String schema) {
         this.dbQueryHelper = dbQueryHelper;
         this.schema = schema;
-    }
-
-    public List<Long> getOrderIdsOfCustomer(Long warehouseId, Long districtId, Long customerId) throws SQLException {
-        ColumnListHandler<Long> handler = new ColumnListHandler<>("O_ID");
-        String query = String.format("SELECT O_ID FROM %s.orders WHERE O_W_ID = ? AND O_D_ID = ? AND O_C_ID = ?",
-                schema);
-        return dbQueryHelper.getQueryRunner().query(query, handler, warehouseId, districtId, customerId);
-    }
-
-    public long getCustomerIdOfOrder(Long warehouseId, Long districtId, Long orderId) throws SQLException {
-        ScalarHandler<Long> handler = new ScalarHandler<>("O_C_ID");
-        String query = String.format("SELECT O_C_ID FROM %s.orders WHERE O_W_ID = ? AND O_D_ID = ? AND O_ID = ?",
-                schema);
-        return dbQueryHelper.getQueryRunner().query(query, handler, warehouseId, districtId, orderId);
     }
 
     public List<Order> getById(long warehouseId, long districtId, long greaterThanId, long lessThanId) throws SQLException {

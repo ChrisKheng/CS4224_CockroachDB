@@ -1,23 +1,16 @@
 package cs4224.transactions;
 
-import cs4224.dao.OrderDao;
-import cs4224.dao.OrderLineDao;
+import cs4224.dao.CustomerDao;
 import cs4224.entities.Customer;
-import cs4224.entities.Order;
 
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class RelatedCustomerTransaction extends BaseTransaction {
-    private final OrderDao orderDao;
-    private final OrderLineDao orderLineDao;
+    private final CustomerDao customerDao;
 
-    public RelatedCustomerTransaction(OrderDao orderDao, OrderLineDao orderLineDao) {
-        this.orderDao = orderDao;
-        this.orderLineDao = orderLineDao;
+    public RelatedCustomerTransaction(CustomerDao customerDao) {
+        this.customerDao = customerDao;
     }
 
     @Override
@@ -26,7 +19,16 @@ public class RelatedCustomerTransaction extends BaseTransaction {
         final long customerDistrictId = Long.parseLong(parameters[2]);
         final long customerId = Long.parseLong(parameters[3]);
 
-        HashSet<Customer> relatedCustomers = executeAndGetResult(customerWarehouseId, customerDistrictId, customerId);
+        List<Customer> relatedCustomers = executeAndGetResult(customerWarehouseId, customerDistrictId, customerId);
+        printOutput(relatedCustomers);
+    }
+
+    public List<Customer> executeAndGetResult(long customerWarehouseId, long customerDistrictId, long customerId)
+            throws SQLException {
+        return customerDao.getRelatedCustomer(customerWarehouseId, customerDistrictId, customerId);
+    }
+
+    private void printOutput(List<Customer> relatedCustomers) {
         System.out.printf("Number of relatedCustomers: %d\n", relatedCustomers.size());
         System.out.printf("Related customers (C_W_ID, C_D_ID, C_ID):");
         int count = 1;
@@ -44,72 +46,5 @@ public class RelatedCustomerTransaction extends BaseTransaction {
     @Override
     public String getType() {
         return "Related Customer";
-    }
-
-    public HashSet<Customer> executeAndGetResult(long customerWarehouseId, long customerDistrictId, long customerId)
-            throws SQLException {
-        List<Long> orderIds = orderDao.getOrderIdsOfCustomer(customerWarehouseId, customerDistrictId, customerId);
-        Set<Order> relatedOrders = Collections.synchronizedSet(new HashSet<>());
-        orderIds.parallelStream().forEach(oid -> {
-            try {
-                Order order = Order.builder()
-                        .warehouseId(customerWarehouseId)
-                        .districtId(customerDistrictId)
-                        .id(oid)
-                        .build();
-                HashSet<Order> result = getRelatedOrders(order);
-                relatedOrders.addAll(result);
-            } catch (SQLException e) {
-              throw new RuntimeException(e);
-            }
-        });
-
-        return getCustomersOfOrders(relatedOrders);
-    }
-
-    public HashSet<Order> getRelatedOrders(Order order) throws SQLException {
-        HashSet<Long> itemIdsSet = orderLineDao.getItemIdsOfOrder(order.getWarehouseId(), order.getDistrictId(),
-                order.getId());
-        HashSet<Order> result = new HashSet<>();
-
-        for (long itemId : itemIdsSet) {
-            List<Order> relatedOrders = orderLineDao.getOrdersOfItem(itemId);
-
-            for (Order relatedOrder : relatedOrders) {
-                boolean isSameOrder = relatedOrder.isEqualOrderSpecifier(order);
-                boolean isSameWarehouse = relatedOrder.getWarehouseId() == order.getWarehouseId();
-                if (isSameOrder || isSameWarehouse) {
-                    continue;
-                }
-
-                HashSet<Long> relatedOrderItemIds = orderLineDao.getItemIdsOfOrder(relatedOrder.getWarehouseId(),
-                        relatedOrder.getDistrictId(), relatedOrder.getId());
-                for (long relatedOrderItemId : relatedOrderItemIds) {
-                    // CANNOT use == to compare to Long objects since they are now objects and == means to compare reference
-                    // instead of its value. So, using == to compare two long values will always result in false even
-                    // if their values are equal cuz == is comparing the reference.
-                    if (relatedOrderItemId != itemId && itemIdsSet.contains(relatedOrderItemId)) {
-                        result.add(relatedOrder);
-                        break;
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    public HashSet<Customer> getCustomersOfOrders(Set<Order> orders) throws SQLException {
-        HashSet<Customer> result = new HashSet<>();
-        for (Order order : orders) {
-            long customerId = orderDao.getCustomerIdOfOrder(order.getWarehouseId(), order.getDistrictId(),
-                    order.getId());
-            result.add(Customer.builder()
-                    .warehouseId(order.getWarehouseId())
-                    .districtId(order.getDistrictId())
-                    .id(customerId)
-                    .build());
-        }
-        return result;
     }
 }
