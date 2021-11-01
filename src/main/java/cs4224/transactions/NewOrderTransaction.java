@@ -155,6 +155,7 @@ public class NewOrderTransaction extends BaseTransaction {
             }
 
             p.execute();
+            // 6
             totalAmount = totalAmount * (1 + districtTax.doubleValue() + warehouseTax.doubleValue()) * (1 - discount.doubleValue());
 
             System.out.printf("Customer -> last name: %s, credit status: %s, discount: %f\n", lastName, credit, discount.doubleValue());
@@ -163,15 +164,6 @@ public class NewOrderTransaction extends BaseTransaction {
             System.out.printf("Number of items: %d, total amount for order: %f\n", noOfItems, totalAmount);
             Arrays.stream(output).forEach(System.out::println);
 
-
-
-
-
-
-            // 6
-
-
-
         } catch (Exception ex) {
             LOGGER.error("Rolling back transaction due to error: ", ex);
             connection.rollback();
@@ -179,7 +171,6 @@ public class NewOrderTransaction extends BaseTransaction {
             connection.close();
             throw ex;
         }
-
 
     }
 
