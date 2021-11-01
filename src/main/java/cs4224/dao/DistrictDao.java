@@ -26,6 +26,16 @@ public class DistrictDao {
         return districts.get(0);
     }
 
+    public District updateIncrementNextOrderId(Connection connection, long warehouseId, long districtId) throws SQLException {
+        final String query = String.format("UPDATE %s.DISTRICT SET " +
+                "D_NEXT_O_ID = D_NEXT_O_ID + 1 " +
+                "WHERE (D_W_ID, D_ID) = (?, ?) " +
+                "RETURNING D_NEXT_O_ID, D_TAX", schema);
+        final List<District> districts = dbQueryHelper.getQueryResult(connection, query, District.class,
+                warehouseId, districtId);
+        return districts.get(0);
+    }
+
     public District getNextOrderId(long warehouseId, long districtId) throws SQLException {
         final String query = String.format("SELECT D_NEXT_O_ID FROM %s.DISTRICT WHERE D_W_ID = ? AND D_ID = ?", schema);
         final List<District> districts = dbQueryHelper.getQueryResult(query, District.class, warehouseId,

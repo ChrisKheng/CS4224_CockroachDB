@@ -2,7 +2,10 @@ package cs4224.dao;
 
 import cs4224.entities.Order;
 
+import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.List;
 
 public class OrderDao {
@@ -30,6 +33,17 @@ public class OrderDao {
                 "LIMIT 1",
                 schema);
         return dbQueryHelper.getQueryResult(query, Order.class, warehouseId, districtId, customerId).get(0);
+    }
+
+    public Order insertAndReturnOrder(Connection connection, long id, long warehouseId, long districtId,
+                                      long customerId, long carrierId, BigDecimal numItems, BigDecimal allLocal, Long entryDateTime) throws SQLException {
+        final String query = String.format(
+                "INSERT INTO %s.orders (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_CARRIER_ID, O_OL_CNT, O_ALL_LOCAL)" +
+                        "VALUES (?, ?, ?, ?, now(), ?, ?, ?)"+
+                        "RETURNING O_ID, O_ENTRY_D",
+                schema);
+        return dbQueryHelper.getQueryResult(connection, query, Order.class, id, districtId, warehouseId, customerId,
+                 carrierId, numItems, allLocal).get(0);
     }
 
     public Order getState() {
