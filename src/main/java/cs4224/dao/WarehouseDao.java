@@ -27,6 +27,13 @@ public class WarehouseDao {
         return warehouses.get(0);
     }
 
+    public Warehouse getWarehouseTax(Connection connection, long warehouseId) throws SQLException {
+        final String query = String.format("SELECT W_TAX FROM %s.WAREHOUSE WHERE W_ID = ?", schema);
+        final List<Warehouse> warehouses = queryResultToEntityMapper.getQueryResult(connection, query, Warehouse.class,
+                warehouseId);
+        return warehouses.get(0);
+    }
+
     public List<Warehouse> getAllWarehouseIDs() {
         try {
             final String query = String.format("SELECT W_ID FROM %s.WAREHOUSE", schema);

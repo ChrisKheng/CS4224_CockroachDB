@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,5 +19,8 @@ public class Item {
 
     @JsonProperty("i_name")
     private String name;
+
+    @JsonProperty("i_price")
+    private BigDecimal price;
 
 }

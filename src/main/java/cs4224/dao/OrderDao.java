@@ -2,6 +2,7 @@ package cs4224.dao;
 
 import cs4224.entities.Order;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -54,8 +55,19 @@ public class OrderDao {
                         "SET O_CARRIER_ID = ?\n" +
                         "WHERE (O_W_ID, O_D_ID, O_ID) = (?, ?, ?)\n" +
                         "RETURNING O_C_ID"
-        , schema);
+                , schema);
         return dbQueryHelper.getQueryResult(connection, query, Order.class, carrierId, warehouseId, districtId, orderId).get(0);
+    }
+
+    public Order insertAndReturnOrder(Connection connection, long orderId, long warehouseId, long districtId,
+                                      long customerId, BigDecimal numItems, BigDecimal allLocal) throws SQLException {
+        final String query = String.format(
+                "INSERT INTO %s.orders (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_CARRIER_ID, O_OL_CNT, O_ALL_LOCAL)\n" +
+                        "VALUES (?, ?, ?, ?, now(), NULL, ?, ?)\n"+
+                        "RETURNING O_ID, O_ENTRY_D",
+                schema);
+        return dbQueryHelper.getQueryResult(connection, query, Order.class, orderId, districtId, warehouseId, customerId,
+                 numItems, allLocal).get(0);
     }
 
     public Order getState() {
