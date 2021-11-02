@@ -6,8 +6,6 @@ import cs4224.dao.OrderDao;
 import cs4224.dao.OrderLineDao;
 import cs4224.entities.Order;
 import cs4224.entities.OrderLine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -16,7 +14,6 @@ import java.util.stream.IntStream;
 
 public class DeliveryTransaction extends BaseTransaction{
     private static final int NO_OF_DISTRICTS = 10;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PopularItemTransaction.class);
     private final DbQueryHelper queryResultToEntityMapper;
     private final OrderDao orderDao;
     private final OrderLineDao orderLineDao;
@@ -68,7 +65,6 @@ public class DeliveryTransaction extends BaseTransaction{
             connection.setAutoCommit(true);
             connection.close();
         } catch (Exception ex) {
-            LOGGER.error("Rolling back transaction due to error: ", ex);
             connection.rollback();
             connection.setAutoCommit(true);
             connection.close();
