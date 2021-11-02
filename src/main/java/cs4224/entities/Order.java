@@ -37,7 +37,7 @@ public class Order {
     private BigDecimal allLocal;
 
     @JsonProperty("o_entry_d")
-    private Instant entryDateTime;
+    private Long entryDateTime;
 
     public boolean isEqualOrderSpecifier(Order o) {
         return warehouseId == o.warehouseId && districtId == o.districtId && id == o.id;

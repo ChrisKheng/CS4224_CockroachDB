@@ -31,4 +31,5 @@ public class OrderLine {
 
     @JsonProperty("ol_delivery_d")
     private Instant deliveryDateTime;
+
 }
