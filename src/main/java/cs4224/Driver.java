@@ -47,7 +47,8 @@ public class Driver {
         Scanner scanner = new Scanner(queryTxt);
         BaseTransaction transaction;
 
-        List<Long> timeRecord = new ArrayList<>();
+        Statistics calculator = Statistics.getStatisticsCalculator();
+
         List<Long> failedTransactions = new LinkedList<>();
 
         long start, end, lStart, lEnd, lapse, totalLapse;
@@ -113,7 +114,7 @@ public class Driver {
 
                     lEnd = System.nanoTime();
                     lapse = TimeUnit.MILLISECONDS.convert(lEnd - lStart, TimeUnit.NANOSECONDS);
-                    timeRecord.add(lapse);
+                    calculator.ingestTime(transaction.getType(), lapse);
                     System.out.printf("Time taken: %d\n", lapse);
                     System.out.println("======================================================================");
                     break;
@@ -132,8 +133,7 @@ public class Driver {
                 failedTransactions.stream().map(Object::toString).collect(Collectors.joining(","));
         System.err.printf("Skipped transactions: %s\n", failedTransactionsString);
 
-        Statistics.computeTimeStatistics(timeRecord, totalLapse);
-
+        calculator.computeTimeStatistics(totalLapse);
         scanner.close();
     }
 }

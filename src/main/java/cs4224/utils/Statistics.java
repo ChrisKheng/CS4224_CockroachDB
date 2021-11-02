@@ -1,9 +1,29 @@
 package cs4224.utils;
 
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Statistics {
+
+    private HashMap<String, ArrayList<Long>> timeMap = new HashMap<>();
+
+    private static Statistics calculator = new Statistics();
+    private Statistics(){}
+
+    public static Statistics getStatisticsCalculator() {
+        return calculator;
+    }
+
+    public void ingestTime(String transactionType, long transactionTime) {
+        if (!timeMap.containsKey(transactionType)) {
+            timeMap.put(transactionType, new ArrayList<>());
+        }
+        timeMap.get(transactionType).add(transactionTime);
+    }
 
     private static long computeMedian(List<Long> lst) {
         if (lst.size() == 0) return 0;
@@ -20,7 +40,10 @@ public class Statistics {
         return lst.get(i);
     }
 
-    public static void computeTimeStatistics(List<Long> transactionTimes, long totalTime) {
+    public void computeTimeStatistics(long totalTime) {
+
+        ArrayList<Long> transactionTimes = new ArrayList<>();
+        timeMap.values().forEach(transactionTimes::addAll);
         // Prevents division by a small number
         totalTime = Math.max(totalTime, 1);
         Collections.sort(transactionTimes);
@@ -45,8 +68,20 @@ public class Statistics {
         System.err.printf("g. 99th percentile transaction latency: %dms\n", ninetyNinePtlLatency);
         System.err.println("======================================================================");
 
-        System.err.println("Raw statistics data:");
-        System.err.printf("%d,%d,%d,%d,%d,%d,%d\n",
-                noOfTransactions, totalTime, throughput, avgLatency, medianLatency, ninetyFivePtlLatency, ninetyNinePtlLatency);
+        System.err.println("Measurements for each transaction: ");
+
+        for (String key : timeMap.keySet()) {
+            System.err.println(key);
+            ArrayList<Long> times = timeMap.get(key);
+            long total = times.stream().reduce(Long::sum).orElse(0L);
+            int n = times.size();
+            System.err.printf("-Transaction count: %d\n", n);
+            System.err.printf("-Minimum transaction latency: %dms\n", Collections.min(times));
+            System.err.printf("-Maximum transaction latency: %dms\n", Collections.max(times));
+            System.err.printf("-Average transaction latency: %dms\n", total/n);
+            System.err.printf("-Median transaction latency: %dms\n", computeMedian(times));
+            System.err.printf("-95th percentile transaction latency: %dms\n", computePercentile(times, 95));
+            System.err.printf("-99th percentile transaction latency: %dms\n", computePercentile(times, 99));
+        }
     }
 }
