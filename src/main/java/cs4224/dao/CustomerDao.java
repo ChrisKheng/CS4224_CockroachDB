@@ -34,10 +34,10 @@ public class CustomerDao {
         return customers.get(0);
     }
 
-    public Customer getNewOrderInfoById(long warehouseId, long districtId, long customerId) throws SQLException {
+    public Customer getNewOrderInfoById(Connection connection, long warehouseId, long districtId, long customerId) throws SQLException {
         final String query = String.format("SELECT C_LAST, C_CREDIT, C_DISCOUNT FROM %s.customer WHERE C_W_ID = ? AND C_D_ID = ? " +
                 "AND C_ID = ?",  schema);
-        final List<Customer> customers = dbQueryHelper.getQueryResult(query, Customer.class, warehouseId, districtId,
+        final List<Customer> customers = dbQueryHelper.getQueryResult(connection, query, Customer.class, warehouseId, districtId,
                 customerId);
         return customers.get(0);
     }

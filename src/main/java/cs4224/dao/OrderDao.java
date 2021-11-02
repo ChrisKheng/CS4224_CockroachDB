@@ -35,15 +35,15 @@ public class OrderDao {
         return dbQueryHelper.getQueryResult(query, Order.class, warehouseId, districtId, customerId).get(0);
     }
 
-    public Order insertAndReturnOrder(Connection connection, long id, long warehouseId, long districtId,
-                                      long customerId, long carrierId, BigDecimal numItems, BigDecimal allLocal, Long entryDateTime) throws SQLException {
+    public Order insertAndReturnOrder(Connection connection, long orderId, long warehouseId, long districtId,
+                                      long customerId, BigDecimal numItems, BigDecimal allLocal) throws SQLException {
         final String query = String.format(
-                "INSERT INTO %s.orders (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_CARRIER_ID, O_OL_CNT, O_ALL_LOCAL)" +
-                        "VALUES (?, ?, ?, ?, now(), ?, ?, ?)"+
+                "INSERT INTO %s.orders (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_CARRIER_ID, O_OL_CNT, O_ALL_LOCAL)\n" +
+                        "VALUES (?, ?, ?, ?, now(), NULL, ?, ?)\n"+
                         "RETURNING O_ID, O_ENTRY_D",
                 schema);
-        return dbQueryHelper.getQueryResult(connection, query, Order.class, id, districtId, warehouseId, customerId,
-                 carrierId, numItems, allLocal).get(0);
+        return dbQueryHelper.getQueryResult(connection, query, Order.class, orderId, districtId, warehouseId, customerId,
+                 numItems, allLocal).get(0);
     }
 
     public Order getState() {

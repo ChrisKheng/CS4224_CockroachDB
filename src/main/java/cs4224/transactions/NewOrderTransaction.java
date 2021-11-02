@@ -73,7 +73,6 @@ public class NewOrderTransaction extends BaseTransaction {
 
     @Override
     public void execute(String[] dataLines, String[] parameters) throws Exception {
-
         customerId = Integer.parseInt(parameters[1]);
         warehouseId = Integer.parseInt(parameters[2]);
         districtId = Integer.parseInt(parameters[3]);
@@ -81,29 +80,22 @@ public class NewOrderTransaction extends BaseTransaction {
 
         final Connection connection = queryResultToEntityMapper.getConnection();
         connection.setAutoCommit(false);
-
         List<NewOrderLine> newOrderLines = parseNewOrderLines(dataLines);
 
         // output lines that will be collected but only printed if we manage to finish the commit
         String[] output = new String[noOfItems];
         try {
-
             // 1
-            final long districtNextOrderId = districtDao.getNextOrderId(warehouseId, districtId).getNextOrderId();
-
-            // 2
-            BigDecimal districtTax = districtDao.updateIncrementNextOrderId(connection, warehouseId, districtId).getTax();
+            District district = districtDao.updateIncrementNextOrderId(connection, warehouseId, districtId);
+            long districtNextOrderId = district.getNextOrderId() - 1;
+            BigDecimal districtTax = district.getTax();
 
             // 3
-            /*
-            Connection connection, long id, long warehouseId, long districtId,
-                                      long customerId, long carrierId, BigDecimal numItems, BigDecimal allLocal, Instant entryDateTime
-             */
             BigDecimal isAllMatch = newOrderLines.stream().allMatch(x -> x.supplierWarehouseId == warehouseId)
                     ? BigDecimal.ONE
                     : BigDecimal.ZERO;
             Order newOrder = orderDao.insertAndReturnOrder(connection, districtNextOrderId, warehouseId, districtId,
-                    customerId, -1, BigDecimal.valueOf(noOfItems), isAllMatch, System.currentTimeMillis());
+                    customerId, BigDecimal.valueOf(noOfItems), isAllMatch);
 
             LocalDateTime ldt = Instant.ofEpochMilli(newOrder.getEntryDateTime())
                     .atZone(ZoneId.systemDefault()).toLocalDateTime();
@@ -112,11 +104,11 @@ public class NewOrderTransaction extends BaseTransaction {
             double totalAmount = 0.0;
 
             // 5
-            Customer customer = customerDao.getNewOrderInfoById(warehouseId, districtId, customerId);
+            Customer customer = customerDao.getNewOrderInfoById(connection, warehouseId, districtId, customerId);
             String lastName = customer.getLastName();
             String credit = customer.getCreditStatus();
             BigDecimal discount = customer.getDiscountRate();
-            BigDecimal warehouseTax = warehouseDao.getWarehouseTax(warehouseId).getTax();
+            BigDecimal warehouseTax = warehouseDao.getWarehouseTax(connection, warehouseId).getTax();
 
             // prepare statement by connection
             PreparedStatement p = connection.prepareStatement(orderLineDao.orderLineMultiRowsInsertTemplate());
@@ -126,11 +118,12 @@ public class NewOrderTransaction extends BaseTransaction {
                 int supplyWarehouseId = newOrderLines.get(i).supplierWarehouseId;
                 BigDecimal orderedQuantity = BigDecimal.valueOf(newOrderLines.get(i).quantity);
 
-                Stock updatedStock = stockDao.updateAndGetStock(connection, warehouseId, itemId, districtId, supplyWarehouseId, orderedQuantity);
+                Stock updatedStock = stockDao.updateAndGetStock(connection, supplyWarehouseId, itemId, districtId,
+                        orderedQuantity, warehouseId == supplyWarehouseId);
                 Long sQuant = updatedStock.getQuantity().longValue();
                 String sDist = getSdist(updatedStock, districtId);
 
-                Item item = itemDao.getItemById(itemId);
+                Item item = itemDao.getItemById(connection, itemId);
                 String itemName = item.getName();
                 Double itemPrice = item.getPrice().doubleValue();
 
@@ -154,7 +147,12 @@ public class NewOrderTransaction extends BaseTransaction {
             }
 
             // fire the multi-insert
-            p.execute();
+            p.executeBatch();
+
+            connection.commit();
+            connection.setAutoCommit(true);
+            connection.close();
+
             // 6
             totalAmount = totalAmount * (1 + districtTax.doubleValue() + warehouseTax.doubleValue()) * (1 - discount.doubleValue());
 
@@ -164,7 +162,6 @@ public class NewOrderTransaction extends BaseTransaction {
             System.out.printf("Order number: %d, entry date: %s\n", newOrder.getId(), ldt.toString());
             System.out.printf("Number of items: %d, total amount for order: %f\n", noOfItems, totalAmount);
             Arrays.stream(output).forEach(System.out::println);
-
         } catch (Exception ex) {
             LOGGER.error("Rolling back transaction due to error: ", ex);
             connection.rollback();
@@ -172,7 +169,6 @@ public class NewOrderTransaction extends BaseTransaction {
             connection.close();
             throw ex;
         }
-
     }
 
     private String getSdist(Stock stock, int districtId) {

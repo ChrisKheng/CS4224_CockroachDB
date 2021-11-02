@@ -3,6 +3,7 @@ package cs4224.dao;
 import cs4224.entities.Item;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -20,8 +21,8 @@ public class ItemDao {
                 "%s.order_line WHERE OL_W_ID = ? AND OL_D_ID = ? AND OL_O_ID = ? AND OL_QUANTITY = ?)", schema, schema);
         return queryResultToEntityMapper.getQueryResult(query, Item.class, warehouseId, districtId, orderId, orderLineQuantity);
     }
-    public Item getItemById(long itemId) throws SQLException {
+    public Item getItemById(Connection connection, long itemId) throws SQLException {
         final String query = String.format("SELECT I_NAME, I_PRICE FROM %s.item WHERE I_ID = ?", schema);
-        return queryResultToEntityMapper.getQueryResult(query, Item.class, itemId).get(0);
+        return queryResultToEntityMapper.getQueryResult(connection, query, Item.class, itemId).get(0);
     }
 }

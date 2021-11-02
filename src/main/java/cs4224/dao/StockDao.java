@@ -26,8 +26,8 @@ public class StockDao {
         return dbQueryHelper.getQueryRunner().query(query, handler, warehouseId, itemIds, threshold);
     }
 
-    public Stock updateAndGetStock(Connection connection, long warehouseId, long itemId, long districtId,
-                                   long supplyWarehouseId, BigDecimal quantityOrdered) throws SQLException {
+    public Stock updateAndGetStock(Connection connection, long supplyWarehouseId, long itemId, long districtId,
+                                   BigDecimal quantityOrdered, boolean isLocal) throws SQLException {
         String paddedSDist = String.format("S_DIST_%02d", districtId);
 
         final String query = String.format("UPDATE %s.stock SET " +
@@ -39,7 +39,7 @@ public class StockDao {
                 "RETURNING S_QUANTITY, %s", schema, paddedSDist);
 
         return dbQueryHelper.getQueryResult(connection, query, Stock.class, quantityOrdered, quantityOrdered,
-                quantityOrdered, quantityOrdered, warehouseId == supplyWarehouseId ? 0 : 1, warehouseId, itemId).get(0);
+                quantityOrdered, quantityOrdered, isLocal ? 0 : 1, supplyWarehouseId, itemId).get(0);
     }
 
     public Stock getState(long warehouseId) {
