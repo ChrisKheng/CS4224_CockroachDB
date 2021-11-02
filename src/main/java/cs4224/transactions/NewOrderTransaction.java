@@ -68,7 +68,6 @@ public class NewOrderTransaction extends BaseTransaction {
         this.warehouseDao = warehouseDao;
         this.stockDao = stockDao;
         this.queryResultToEntityMapper = queryResultToEntityMapper;
-
     }
 
     @Override
