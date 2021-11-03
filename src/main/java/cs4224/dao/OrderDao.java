@@ -5,7 +5,6 @@ import cs4224.entities.Order;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.List;
 
 public class OrderDao {
@@ -33,6 +32,31 @@ public class OrderDao {
                 "LIMIT 1",
                 schema);
         return dbQueryHelper.getQueryResult(query, Order.class, warehouseId, districtId, customerId).get(0);
+    }
+
+    public Order getSmallestUndeliveredOrderId(Connection connection, long warehouseId, long districtId) throws SQLException {
+        final String query = String.format(
+                "SELECT O_ID\n" +
+                        "FROM %s.orders\n" +
+                        "WHERE (O_W_ID, O_D_ID) = (?, ?)\n" +
+                        "AND O_CARRIER_ID IS NULL\n" +
+                        "ORDER BY O_ID ASC\n" +
+                        "LIMIT 1;"
+        , schema);
+        List<Order> result = dbQueryHelper.getQueryResult(connection, query, Order.class, warehouseId, districtId);
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+    public Order updateOrderCarrierIdAndReturnCustomerId(Connection connection, long carrierId, long warehouseId,
+                                                         long districtId, long orderId)
+            throws SQLException {
+        final String query = String.format(
+                "UPDATE %s.orders\n" +
+                        "SET O_CARRIER_ID = ?\n" +
+                        "WHERE (O_W_ID, O_D_ID, O_ID) = (?, ?, ?)\n" +
+                        "RETURNING O_C_ID"
+                , schema);
+        return dbQueryHelper.getQueryResult(connection, query, Order.class, carrierId, warehouseId, districtId, orderId).get(0);
     }
 
     public Order insertAndReturnOrder(Connection connection, long orderId, long warehouseId, long districtId,

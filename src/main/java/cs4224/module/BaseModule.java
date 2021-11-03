@@ -146,8 +146,10 @@ public class BaseModule extends AbstractModule {
 
     @Provides
     @Inject
-    public DeliveryTransaction provideDeliveryTransaction() {
-        return new DeliveryTransaction();
+    public DeliveryTransaction provideDeliveryTransaction(OrderDao orderDao, OrderLineDao orderLineDao,
+                                                          CustomerDao customerDao,
+                                                          DbQueryHelper queryResultToEntityMapper) {
+        return new DeliveryTransaction(orderDao, orderLineDao, customerDao, queryResultToEntityMapper);
     }
 
     @Provides

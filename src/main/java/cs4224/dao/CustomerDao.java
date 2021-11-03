@@ -66,30 +66,44 @@ public class CustomerDao {
     }
 
     public List<Customer> getRelatedCustomer(long warehouseId, long districtId, long customerId) throws SQLException {
-        final String query = "WITH\n" +
-                " A as (\n" +
-                "   SELECT O_W_ID, O_D_ID, O_ID\n" +
-                "   FROM wholesale.orders\n" +
-                "   WHERE O_W_ID = ? AND O_D_ID = ? AND O_C_ID = ?\n" +
-                " ),\n" +
-                " B AS (\n" +
-                "    SELECT DISTINCT OL_W_ID, OL_D_ID, OL_O_ID, OL_I_ID\n" +
-                "    FROM A JOIN wholesale.order_line AS T\n" +
-                "    ON A.O_W_ID = T.OL_W_ID AND A.O_D_ID = T.OL_D_ID AND A.O_ID = T.OL_O_ID\n" +
-                "),\n" +
-                " C AS (\n" +
-                "    SELECT T.OL_W_ID AS O_W_ID, T.OL_D_ID AS O_D_ID, T.OL_O_ID AS O_ID\n" +
-                "    FROM B JOIN wholesale.order_line AS T\n" +
-                "    ON B.OL_I_ID = T.OL_I_ID\n" +
-                "    AND B.OL_W_ID != T.OL_W_ID\n" +
-                "    GROUP BY (B.OL_W_ID, B.OL_D_ID, B.OL_O_ID, T.OL_W_ID, T.OL_D_ID, T.OL_O_ID)\n" +
-                "    HAVING COUNT(DISTINCT B.OL_I_ID) > 1\n" +
-                ")\n" +
-                "SELECT DISTINCT T.O_W_ID AS C_W_ID, T.O_D_ID AS C_D_ID, T.O_C_ID AS C_ID\n" +
-                "FROM C JOIN wholesale.orders AS T\n" +
-                "ON C.O_W_ID = T.O_W_ID AND C.O_D_ID = T.O_D_ID AND C.O_ID = T.O_ID";
+        final String query = String.format(
+                "WITH\n" +
+                        " A as (\n" +
+                        "   SELECT O_W_ID, O_D_ID, O_ID\n" +
+                        "   FROM %s.orders\n" +
+                        "   WHERE O_W_ID = ? AND O_D_ID = ? AND O_C_ID = ?\n" +
+                        " ),\n" +
+                        " B AS (\n" +
+                        "    SELECT DISTINCT OL_W_ID, OL_D_ID, OL_O_ID, OL_I_ID\n" +
+                        "    FROM A JOIN wholesale.order_line AS T\n" +
+                        "    ON A.O_W_ID = T.OL_W_ID AND A.O_D_ID = T.OL_D_ID AND A.O_ID = T.OL_O_ID\n" +
+                        "),\n" +
+                        " C AS (\n" +
+                        "    SELECT T.OL_W_ID AS O_W_ID, T.OL_D_ID AS O_D_ID, T.OL_O_ID AS O_ID\n" +
+                        "    FROM B JOIN wholesale.order_line AS T\n" +
+                        "    ON B.OL_I_ID = T.OL_I_ID\n" +
+                        "    AND B.OL_W_ID != T.OL_W_ID\n" +
+                        "    GROUP BY (B.OL_W_ID, B.OL_D_ID, B.OL_O_ID, T.OL_W_ID, T.OL_D_ID, T.OL_O_ID)\n" +
+                        "    HAVING COUNT(DISTINCT B.OL_I_ID) > 1\n" +
+                        ")\n" +
+                        "SELECT DISTINCT T.O_W_ID AS C_W_ID, T.O_D_ID AS C_D_ID, T.O_C_ID AS C_ID\n" +
+                        "FROM C JOIN wholesale.orders AS T\n" +
+                        "ON C.O_W_ID = T.O_W_ID AND C.O_D_ID = T.O_D_ID AND C.O_ID = T.O_ID"
+        , schema);
 
         return dbQueryHelper.getQueryResult(query, Customer.class, warehouseId, districtId, customerId);
+    }
+
+    public void updateCustomerForDeliveryXact(Connection connection, long warehouseId, long districtId,
+                                              long customerId, BigDecimal totalOrderLinesAmount)
+            throws SQLException {
+        final String query = String.format(
+                "UPDATE %s.customer\n" +
+                        "SET (C_BALANCE, C_DELIVERY_CNT) = (C_BALANCE + ?, C_DELIVERY_CNT + 1)\n" +
+                        "WHERE (C_W_ID, C_D_ID, C_ID) = (?, ?, ?)"
+        , schema);
+        dbQueryHelper.getQueryRunner().execute(connection, query, totalOrderLinesAmount, warehouseId, districtId,
+                customerId);
     }
 
     public Customer getState() {
