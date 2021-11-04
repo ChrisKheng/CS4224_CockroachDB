@@ -73,6 +73,7 @@ public class Statistics {
         for (String key : timeMap.keySet()) {
             System.err.println(key);
             ArrayList<Long> times = timeMap.get(key);
+            Collections.sort(times);
             double total = times.stream().reduce(Long::sum).orElse(0L);
             int n = times.size();
             System.err.printf("-Transaction count: %d\n", n);
