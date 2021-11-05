@@ -22,7 +22,7 @@ cockroach nodelocal upload cockroachdb_data_setup/project_files_4/data_files/war
 * The output should show the id of the CockroachDB node where the file is uploaded to. The id should be the id of the
 current CockroachDB cluster node. Jot down the id.
 
-5) Upload the `.sql` files under the `scripts` directory of the project root directory to the cluster node.
+5) Upload the `.sql` files under the `scripts/load_data` directory of the project root directory to the cluster node.
 
 6) Run the command below to create the wholesale database. Enter the password of the CockroachDB user when prompted.
 ```
@@ -135,6 +135,9 @@ The scripts assume that:
 10) Run `prep.sh` to send the `profiling_files` archive to the group of CockroachDB cluster nodes.
 11) In `launch.sh`, substitute the `servers` variable with the list of hostnames of other nodes to run the clients on.
 12) Run `launch.sh` to launch 40 clients simultaneously.
+* The script launches 8 client instances at each node, following the server requirement S(i mod 5). For example, 
+clients 0, 5, 10, 15, 20, 25, 30, 35 execute on `xnc40`, clients 1, 6, 11, 16, 21, 26, 31, 36 execute on `xcnc41` and so on.
+* The script runs run.sh in profiling_files subdirectory of the current directory on every node.
 ```
 Usage: launch <database_name> <workload_type>
 database_name: Name of database for the workload
@@ -154,3 +157,9 @@ alias checkstatus='for server in xcnc4{1..4}; do ssh $server "tmux ls"; done'
 16) Once the running clients finish, you can run `gather_outputs.sh` to gather all the output files back to current
 node.
 * Replace the list of nodes in `gather_outputs.sh` before running the script.
+
+## Consolidating Statistics
+* A python script called `stats_cal.py` is provided in the cassandra implementation repository to consolidate the
+statistics output of each client. Please refer to `README.md` of the cassandra implementation on where to find the script
+and how to use the script. The same script can be used for consolidating the statistics output of clients for cockroachdb
+implementation.
